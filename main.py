@@ -147,6 +147,41 @@ def get_case(case_id: str):
         raise HTTPException(404, "Case not found")
     return result.data
 
+@app.delete("/cases/{case_id}/reset")
+def reset_case(case_id: str):
+    """
+    Reset a case back to intake status, clearing all derived data.
+    Intended for demo / rerun flows — the case record itself is kept.
+    """
+    db = get_db()
+
+    existing = db.table("cases").select("id").eq("id", case_id).single().execute()
+    if not existing.data:
+        raise HTTPException(404, "Case not found")
+
+    # Delete order respects foreign keys.
+    db.table("disposition_memos").delete().eq("case_id", case_id).execute()
+    db.table("findings").delete().eq("case_id", case_id).execute()
+    db.table("audit_log").delete().eq("case_id", case_id).execute()
+    db.table("chunks").delete().eq("case_id", case_id).execute()
+    db.table("documents").delete().eq("case_id", case_id).execute()
+
+    db.table("cases").update({"status": "intake"}).eq("id", case_id).execute()
+
+    db.table("audit_log").insert({
+        "case_id": case_id,
+        "action": "CASE_RESET",
+        "actor": "system",
+        "actor_name": "API",
+        "note": "Case reset to intake for demo/rerun",
+    }).execute()
+
+    return {
+        "case_id": case_id,
+        "status": "reset",
+        "message": "Case reset to intake. Documents, findings, chunks, memos, and audit log cleared.",
+    }
+
 # ─── Documents ────────────────────────────────────────────────────────────────
 
 @app.post("/cases/{case_id}/documents", status_code=201)
