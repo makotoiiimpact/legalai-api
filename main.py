@@ -160,13 +160,29 @@ def reset_case(case_id: str):
         raise HTTPException(404, "Case not found")
 
     # Delete order respects foreign keys.
-    db.table("disposition_memos").delete().eq("case_id", case_id).execute()
-    db.table("findings").delete().eq("case_id", case_id).execute()
-    db.table("audit_log").delete().eq("case_id", case_id).execute()
-    db.table("chunks").delete().eq("case_id", case_id).execute()
-    db.table("documents").delete().eq("case_id", case_id).execute()
+    cleanup_steps = [
+        "disposition_memos",
+        "findings",
+        "audit_log",
+        "chunks",
+        "documents",
+    ]
+    for table in cleanup_steps:
+        try:
+            db.table(table).delete().eq("case_id", case_id).execute()
+        except Exception as e:
+            raise HTTPException(
+                500,
+                f"Reset failed while clearing {table}: {e}",
+            )
 
-    db.table("cases").update({"status": "intake"}).eq("id", case_id).execute()
+    try:
+        db.table("cases").update({
+            "status": "intake",
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }).eq("id", case_id).execute()
+    except Exception as e:
+        raise HTTPException(500, f"Reset failed while updating case status: {e}")
 
     db.table("audit_log").insert({
         "case_id": case_id,

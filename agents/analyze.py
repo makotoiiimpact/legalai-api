@@ -148,7 +148,57 @@ CHECKS = {
             "label": "Physical evidence documented and preserved",
             "question": "What physical evidence was collected (photos, medical records, weapons)? Is there a chain of custody for each item? Was medical attention sought or documented?"
         },
-    ]
+    ],
+    "Murder": [
+        {
+            "check_type": "probable_cause",
+            "label": "Probable cause for arrest documented",
+            "question": "Does the arrest report clearly establish probable cause for the arrest? What specific facts are cited?",
+            "legal_basis": "4th Amendment"
+        },
+        {
+            "check_type": "miranda_timing",
+            "label": "Miranda rights timing and documentation",
+            "question": "When was Miranda administered relative to arrest time? Was there a gap? Were any statements made by the defendant BEFORE Miranda was read? Was a written waiver obtained?",
+            "legal_basis": "5th/6th Amendment — Miranda v. Arizona"
+        },
+        {
+            "check_type": "search_warrant",
+            "label": "Search warrant obtained or valid exception",
+            "question": "Was a search warrant obtained before any searches? If exigent circumstances or other warrant exceptions were claimed, are the specific facts supporting the exception clearly documented?",
+            "legal_basis": "4th Amendment"
+        },
+        {
+            "check_type": "chain_of_custody",
+            "label": "Chain of custody for physical evidence",
+            "question": "Is the chain of custody for all physical evidence (weapons, clothing, DNA, etc.) complete and unbroken? Are there any gaps in handling or signatures?",
+            "legal_basis": "NRS 51.075 — Nevada Rules of Evidence"
+        },
+        {
+            "check_type": "forensic_review",
+            "label": "Autopsy/forensic report reviewed for defensive anomalies",
+            "question": "Does the ME or forensic report contain any findings that support the defendant's version of events — defensive wounds, self-defense indicators, alternative explanations for evidence?",
+            "legal_basis": "Nevada Rules of Evidence"
+        },
+        {
+            "check_type": "witness_consistency",
+            "label": "Witness statement consistency across documents",
+            "question": "Are witness statements internally consistent? Do timelines match across multiple witness accounts? Are there any prior relationships, biases, or inconsistencies that affect credibility?",
+            "legal_basis": "Brady v. Maryland — material impeachment evidence"
+        },
+        {
+            "check_type": "prior_bad_acts",
+            "label": "Prior bad acts evidence disclosed",
+            "question": "Has the prosecution disclosed any prior bad acts evidence they intend to introduce? Have proper NRS 48.045 notice requirements been met?",
+            "legal_basis": "NRS 48.045 — Evidence of other crimes"
+        },
+        {
+            "check_type": "speedy_arraignment",
+            "label": "Right to speedy arraignment — timeline documented",
+            "question": "How much time elapsed between arrest and formal booking/arraignment? Any unreasonable delay could support a 6th Amendment challenge.",
+            "legal_basis": "6th Amendment / NRS 178.556"
+        },
+    ],
 }
 
 # ─── RAG Query ────────────────────────────────────────────────────────────────
@@ -339,7 +389,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="LegalAI Case Analysis Agent")
     parser.add_argument("--case-id",   required=True, help="Case ID (e.g. GTO-2024-001)")
     parser.add_argument("--case-type", default="DUI",
-                        help="Case type: DUI | Drug | Assault (default: DUI)")
+                        help="Case type: DUI | Drug | Assault | Murder (default: DUI)")
     parser.add_argument("--dry-run",   action="store_true",
                         help="Print checks without running analysis")
     args = parser.parse_args()
