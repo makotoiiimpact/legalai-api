@@ -41,10 +41,11 @@ app = FastAPI(
     version="0.1.0"
 )
 
-# CORS — allow paralegal.iiimpact.ai and localhost dev
+# CORS — allow legalai.iiimpact.ai + paralegal.iiimpact.ai and localhost dev
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        "https://legalai.iiimpact.ai",
         "https://paralegal.iiimpact.ai",
         "http://localhost:3000",
         "http://localhost:3001",
