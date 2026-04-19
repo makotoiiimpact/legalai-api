@@ -10,3 +10,37 @@ build/
 venv/
 tmp/
 *.tmp
+
+# ----- LegalAI probe data (regenerable from scripts) -----
+# Raw API dumps from CourtListener probes.
+# These are byproducts of scripts/probe_*.py and scripts/pull_*.py
+# and can be regenerated at will. Kept out of git to avoid bloat.
+scripts/probe_output/garrett_recap/
+scripts/probe_output/opinions/
+scripts/probe_output/*_raw.json
+scripts/probe_output/*_dump.json
+scripts/probe_output/*_page_*.json
+# Raw OPTIONS endpoint schema dumps — already distilled into options_summary.json.
+# Explicit list so options_summary.json is preserved.
+scripts/probe_output/options_courts.json
+scripts/probe_output/options_dockets.json
+scripts/probe_output/options_people.json
+scripts/probe_output/options_positions.json
+scripts/probe_output/options_search.json
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Env files
+.env
+.env.local
+
+# OS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/

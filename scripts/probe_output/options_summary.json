@@ -1,0 +1,194 @@
+{
+  "/people/": {
+    "filters": [
+      "aba_ratings",
+      "date_created",
+      "date_dob",
+      "date_dod",
+      "date_modified",
+      "dob_city",
+      "dob_state",
+      "dod_city",
+      "dod_state",
+      "educations",
+      "fjc_id",
+      "ftm_eid",
+      "gender",
+      "id",
+      "is_alias_of",
+      "name_first",
+      "name_last",
+      "name_middle",
+      "name_suffix",
+      "opinion_clusters_non_participating_judges",
+      "opinion_clusters_participating_judges",
+      "opinions_joined",
+      "opinions_written",
+      "political_affiliations",
+      "positions",
+      "race",
+      "sources"
+    ],
+    "ordering": [
+      "id",
+      "date_created",
+      "date_modified",
+      "date_dob",
+      "date_dod",
+      "name_last"
+    ],
+    "raw_keys": [
+      "actions",
+      "description",
+      "filters",
+      "name",
+      "ordering",
+      "parses",
+      "renders"
+    ]
+  },
+  "/courts/": {
+    "filters": [
+      "citation_string",
+      "date_modified",
+      "dockets",
+      "end_date",
+      "full_name",
+      "has_opinion_scraper",
+      "has_oral_argument_scraper",
+      "id",
+      "in_use",
+      "jurisdiction",
+      "parent_court",
+      "position",
+      "short_name",
+      "start_date"
+    ],
+    "ordering": [
+      "id",
+      "date_modified",
+      "position",
+      "start_date",
+      "end_date"
+    ],
+    "raw_keys": [
+      "actions",
+      "description",
+      "filters",
+      "name",
+      "ordering",
+      "parses",
+      "renders"
+    ]
+  },
+  "/positions/": {
+    "filters": [
+      "appointer",
+      "court",
+      "date_confirmation",
+      "date_created",
+      "date_elected",
+      "date_hearing",
+      "date_judicial_committee_action",
+      "date_modified",
+      "date_nominated",
+      "date_recess_appointment",
+      "date_referred_to_judicial_committee",
+      "date_retirement",
+      "date_start",
+      "date_termination",
+      "how_selected",
+      "id",
+      "job_title",
+      "judicial_committee_action",
+      "location_city",
+      "location_state",
+      "nomination_process",
+      "person",
+      "position_type",
+      "predecessor",
+      "retention_events",
+      "termination_reason",
+      "voice_vote",
+      "votes_no",
+      "votes_yes"
+    ],
+    "ordering": [
+      "id",
+      "date_created",
+      "date_modified",
+      "date_nominated",
+      "date_elected",
+      "date_recess_appointment",
+      "date_referred_to_judicial_committee",
+      "date_judicial_committee_action",
+      "date_hearing",
+      "date_confirmation",
+      "date_start",
+      "date_retirement",
+      "date_termination"
+    ],
+    "raw_keys": [
+      "actions",
+      "description",
+      "filters",
+      "name",
+      "ordering",
+      "parses",
+      "renders"
+    ]
+  },
+  "/dockets/": {
+    "filters": [
+      "assigned_to",
+      "audio_files",
+      "blocked",
+      "clusters",
+      "court",
+      "date_blocked",
+      "date_created",
+      "date_filed",
+      "date_last_filing",
+      "date_modified",
+      "date_terminated",
+      "docket_entries",
+      "docket_number",
+      "docket_number_core",
+      "id",
+      "nature_of_suit",
+      "pacer_case_id",
+      "parties",
+      "referred_to",
+      "source",
+      "tags"
+    ],
+    "ordering": [
+      "id",
+      "date_created",
+      "date_modified",
+      "date_blocked",
+      "date_filed",
+      "date_terminated",
+      "date_last_filing"
+    ],
+    "raw_keys": [
+      "actions",
+      "description",
+      "filters",
+      "name",
+      "ordering",
+      "parses",
+      "renders"
+    ]
+  },
+  "/search/": {
+    "filters": [],
+    "ordering": [],
+    "raw_keys": [
+      "description",
+      "name",
+      "parses",
+      "renders"
+    ]
+  }
+}

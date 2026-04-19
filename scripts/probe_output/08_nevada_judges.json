@@ -1,0 +1,6 @@
+{
+  "detail": "Unknown filter parameters are not allowed.",
+  "unknown_params": [
+    "positions__court__id__startswith"
+  ]
+}

@@ -1,0 +1,293 @@
+{
+  "count": 3,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "absolute_url": "/opinion/6246673/in-re-discipline-of-garrett-tanji-ogata/",
+      "attorney": "",
+      "caseName": "In Re: Discipline Of Garrett Tanji Ogata",
+      "caseNameFull": "",
+      "citation": [],
+      "citeCount": 0,
+      "cluster_id": 6246673,
+      "court": "Nevada Supreme Court",
+      "court_citation_string": "Nev.",
+      "court_id": "nev",
+      "court_jurisdiction": null,
+      "dateArgued": null,
+      "dateFiled": "2022-01-28",
+      "dateReargued": null,
+      "dateReargumentDenied": null,
+      "docketNumber": "83719",
+      "docket_id": 62638675,
+      "judge": "",
+      "lexisCite": "",
+      "meta": {
+        "timestamp": "2024-06-22T08:47:34.763724Z",
+        "date_created": "2022-01-31T08:07:28.182049Z",
+        "score": {
+          "bm25": 165.98659
+        }
+      },
+      "neutralCite": "",
+      "non_participating_judge_ids": [],
+      "opinions": [
+        {
+          "author_id": null,
+          "cites": [],
+          "download_url": "http://caseinfo.nvsupremecourt.us/document/view.do?csNameID=62660&csIID=62660&deLinkID=843966&onBaseDocumentNumber=22-02928",
+          "id": 6113850,
+          "joined_by_ids": [],
+          "local_path": "pdf/2022/01/28/in_re_discipline_of_garrett_tanji_ogata.pdf",
+          "meta": {
+            "timestamp": "2025-10-23T05:20:36.186970Z",
+            "date_created": "2022-01-31T08:07:28.184474Z"
+          },
+          "ordering_key": null,
+          "per_curiam": false,
+          "sha1": "a19ad4b1a11fb9667b0766a976f60f76031fee18",
+          "snippet": "       IN THE SUPREME COURT OF THE STATE OF NEVADA\n\n\nIN THE MATTER OF DISCIPLINE OF                          No. 83719\nGARRETT TANJI OGATA, BAR NO.\n7469\n\n                                                                *\n\n\n         ORDER OF REFERRAL TO A DISCIPLINARY BOARD\n            This is a petition under SCR 111(4) concerning attorney Garrett\nTanji Ogata, based on convictions of driving under the influence, a\nmisdemeanor in violation of NRS 484C.110 and NRS 484C.400, and of\nreckless driving ",
+          "type": "combined-opinion"
+        }
+      ],
+      "panel_ids": [],
+      "panel_names": [],
+      "posture": "",
+      "procedural_history": "",
+      "scdb_id": "",
+      "sibling_ids": [
+        6113850
+      ],
+      "source": "C",
+      "status": "Published",
+      "suitNature": "",
+      "syllabus": ""
+    },
+    {
+      "absolute_url": "/opinion/1033233/patterson-v-state/",
+      "attorney": "Law Office of Lisa Rasmussen, PC, and Lisa A. Rasmussen, Las Vegas, for Appellant., Catherine Cortez Masto, Attorney General, Carson City; Steven B. Wolfson, District Attorney, Steven S. Owens, Chief Deputy District Attorney, and Carrie A. Morton, Deputy District Attorney, Clark County, for Respondent.",
+      "caseName": "Patterson v. State",
+      "caseNameFull": "MICHAEL D. PATTERSON, Appellant, v. THE STATE OF NEVADA, Respondent",
+      "citation": [
+        "129 Nev. 168",
+        "298 P.3d 433",
+        "129 Nev. Adv. Rep. 17",
+        "2013 Nev. LEXIS 22",
+        "2013 WL 1341344"
+      ],
+      "citeCount": 21,
+      "cluster_id": 1033233,
+      "court": "Nevada Supreme Court",
+      "court_citation_string": "Nev.",
+      "court_id": "nev",
+      "court_jurisdiction": null,
+      "dateArgued": null,
+      "dateFiled": "2013-04-04",
+      "dateReargued": null,
+      "dateReargumentDenied": null,
+      "docketNumber": "54408",
+      "docket_id": 912545,
+      "judge": "Hardesty, Parraguirre, Saitta",
+      "lexisCite": "",
+      "meta": {
+        "timestamp": "2024-06-21T01:22:30.040899Z",
+        "date_created": "2014-10-30T13:05:40.696274Z",
+        "score": {
+          "bm25": 20.285025
+        }
+      },
+      "neutralCite": "",
+      "non_participating_judge_ids": [],
+      "opinions": [
+        {
+          "author_id": null,
+          "cites": [],
+          "download_url": null,
+          "id": 9519383,
+          "joined_by_ids": [],
+          "local_path": null,
+          "meta": {
+            "timestamp": "2025-10-27T06:31:45.457987Z",
+            "date_created": "2023-08-07T01:15:26.080220Z"
+          },
+          "ordering_key": 2,
+          "per_curiam": false,
+          "sha1": "",
+          "snippet": "\nParraguirre, J.,\nconcurring in part and dissenting in part:\nI concur with most of the majority\u2019s determination, but I part company in their finding that the justice court abused its discretion in failing to adequately consider the delay or inconvenience the substitution of counsel would occasion.\nHere, after Ogata sought to substitute as counsel and co",
+          "type": "in-part-opinion"
+        },
+        {
+          "author_id": null,
+          "cites": [],
+          "download_url": null,
+          "id": 9519382,
+          "joined_by_ids": [],
+          "local_path": null,
+          "meta": {
+            "timestamp": "2025-10-27T06:31:45.478805Z",
+            "date_created": "2023-08-07T01:15:26.075529Z"
+          },
+          "ordering_key": 1,
+          "per_curiam": false,
+          "sha1": "",
+          "snippet": "\nOPINION\nBy the Court,\nHardesty, J.:\nAppellant Michael Patterson was convicted of conspiracy to commit murder, murder with the use of a deadly weapon, and discharge of a firearm into a vehicle. He now appeals arguing, among other things, that his Sixth Amendment right to counsel was violated when he was denied his counsel of choice at his preliminary hearing before the justice court.\n",
+          "type": "lead-opinion"
+        },
+        {
+          "author_id": null,
+          "cites": [
+            106545,
+            106598,
+            106881,
+            107486,
+            108182,
+            109624,
+            112566,
+            131158,
+            166895,
+            173607,
+            427744,
+            433837,
+            797057,
+            1119448,
+            1191829,
+            1196999,
+            1236300,
+            1291981,
+            1318830,
+            1357006,
+            1430751,
+            1573506,
+            2508848,
+            2514440,
+            2516409,
+            2538439,
+            2569983,
+            2582336,
+            2585044,
+            2588202,
+            2612448,
+            2614790,
+            2623202,
+            2623403,
+            2625182,
+            2637482,
+            2639002,
+            3549423
+          ],
+          "download_url": "http://caseinfo.nvsupremecourt.us/document/view.do?csNameID=22310&csIID=22310&deLinkID=417080&sireDocumentNumber=13-09834",
+          "id": 1033233,
+          "joined_by_ids": [],
+          "local_path": "pdf/2013/04/04/patterson_v._state_1.pdf",
+          "meta": {
+            "timestamp": "2025-10-24T00:42:58.016453Z",
+            "date_created": "2013-07-09T19:53:23.571153Z"
+          },
+          "ordering_key": null,
+          "per_curiam": false,
+          "sha1": "70f164634920f325df0699400a39ae27b72cd64b",
+          "snippet": "                                                  129 Nev., Advance Opinion     11\n                       IN THE SUPREME COURT OF THE STATE OF NEVADA\n\n                MICHAEL D. PATTERSON,                                   No. 54408\n                Appellant,\n                  vs.\n                THE STATE OF NEVADA,\n                                                                           FILED\n                Respondent.                                                 APR 0 4 2013\n\n          ",
+          "type": "combined-opinion"
+        }
+      ],
+      "panel_ids": [],
+      "panel_names": [],
+      "posture": "",
+      "procedural_history": "",
+      "scdb_id": "",
+      "sibling_ids": [
+        9519382,
+        9519383,
+        1033233
+      ],
+      "source": "CU",
+      "status": "Published",
+      "suitNature": "",
+      "syllabus": ""
+    },
+    {
+      "absolute_url": "/opinion/8085200/m-r-investment-co-v-state/",
+      "attorney": "Kermitt L. Waters, Las Vegas for Appellant., Brian McKay, Attorney General, Melvin Beauchamp, Deputy Attorney General, and Dale Haley, Deputy Attorney General, Carson City, for Respondent.",
+      "caseName": "M & R Investment Co. v. State",
+      "caseNameFull": "M & R INVESTMENT COMPANY, INC., a Nevada Corporation v. THE STATE OF NEVADA, on Relation of Its Department of Transportation",
+      "citation": [
+        "103 Nev. 445",
+        "744 P.2d 531",
+        "1987 Nev. LEXIS 1849"
+      ],
+      "citeCount": 1,
+      "cluster_id": 8085200,
+      "court": "Nevada Supreme Court",
+      "court_citation_string": "Nev.",
+      "court_id": "nev",
+      "court_jurisdiction": null,
+      "dateArgued": null,
+      "dateFiled": "1987-10-29",
+      "dateReargued": null,
+      "dateReargumentDenied": null,
+      "docketNumber": "No. 16828",
+      "docket_id": 65180809,
+      "judge": "Gunderson, Mowbray, Springer, Steffen, Young",
+      "lexisCite": "",
+      "meta": {
+        "timestamp": "2024-06-22T17:02:03.949501Z",
+        "date_created": "2022-09-09T03:51:25.085352Z",
+        "score": {
+          "bm25": 7.8959146
+        }
+      },
+      "neutralCite": "",
+      "non_participating_judge_ids": [],
+      "opinions": [
+        {
+          "author_id": null,
+          "cites": [],
+          "download_url": null,
+          "id": 8044954,
+          "joined_by_ids": [],
+          "local_path": null,
+          "meta": {
+            "timestamp": "2025-10-23T15:10:06.031189Z",
+            "date_created": "2022-09-09T03:51:25.097226Z"
+          },
+          "ordering_key": 2,
+          "per_curiam": false,
+          "sha1": "",
+          "snippet": "\nSteffen, J.,\ndissenting:\nRespectfully, I dissent.\nIn my view the district court correctly understood and applied the law as required by the trial evidence.\n\nLarge Parcel\n\nThe majority recognize that identification of the larger tract is an issue of law when the facts are compellingly clear. I agree and conclude that the trial judge, after evalu",
+          "type": "dissent"
+        },
+        {
+          "author_id": null,
+          "cites": [],
+          "download_url": null,
+          "id": 8044953,
+          "joined_by_ids": [],
+          "local_path": null,
+          "meta": {
+            "timestamp": "2025-10-23T15:10:06.696963Z",
+            "date_created": "2022-09-09T03:51:25.094678Z"
+          },
+          "ordering_key": 1,
+          "per_curiam": false,
+          "sha1": "",
+          "snippet": "\n*447OPINION\nBy the Court,\nSpringer, J.:\nThis action, tried before a jury, was brought by the State of Nevada (State) seeking to condemn property owned by M & R Investment Company (M & R).\nThe State\u2019s eminent domain action was intended to obtain approximately fourteen acres of M & R\u2019s twenty-seven-acr",
+          "type": "lead-opinion"
+        }
+      ],
+      "panel_ids": [],
+      "panel_names": [],
+      "posture": "",
+      "procedural_history": "",
+      "scdb_id": "",
+      "sibling_ids": [
+        8044953,
+        8044954
+      ],
+      "source": "U",
+      "status": "Published",
+      "suitNature": "",
+      "syllabus": ""
+    }
+  ]
+}
