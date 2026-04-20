@@ -35,8 +35,17 @@ Before any Supabase MCP call, verify you are targeting `kapyskpusteokxuaquwo` fo
 3. **Draft, don't execute, for schema migrations.** Write UP + DOWN + a review doc. Wait for human green-light.
 4. **For any migration that FKs into an existing table:** the FIRST tool call verifies the referenced column's type via `information_schema`. Do not assume uuid vs bigint.
 
+### 5 — Every schema change goes through a versioned migration file
+No exceptions. No dashboard-driven DDL on prod. Every schema change to any Supabase environment (prod, dev, staging, anywhere) must land as a committed SQL file in supabase/migrations/. If you encounter unrecorded schema drift in an existing product, the first migration task is a retroactive baseline capturing current state. See ADR-012.
+
+### 6 — Bootstrap a new Supabase env by mirroring prod, not stubbing
+Before applying new migrations to a fresh Supabase project, inventory prod's schema (tables, extensions, functions, triggers, RLS state, custom types), draft a baseline migration that faithfully reproduces it, apply to the new env, and verify parity. Then layer new migrations on top. Stubs hide drift. See ADR-015.
+
+### 7 — Canonical migration ordering for pgvector + SQL-language functions
+When a migration includes SQL-language functions and/or pgvector columns, use this order: Extensions → Tables → Functions → Indexes → Triggers → Views. SQL-language function bodies are parsed at CREATE time (must be after referenced tables). pgvector columns require explicit dimension (vector(1536) for text-embedding-3-small, vector(3072) for text-embedding-3-large). Bare `vector` fails at ivfflat index creation. Static validators (sqlparse) don't catch either bug — only runtime apply does. See ADR-016.
+
 ## Current Active Work
-Behavioral intelligence layer schema migration drafted (24 tables + ALTERs on `cases`). See `supabase/migrations/20260420_*.sql` and `scripts/schema_review.md`.
+Behavioral intelligence layer shipped (f5a6c7d baseline + c816673 layer). 30 tables live on legalai-dev (cfiaxrvtafszmgraftbk). Next session opens with seed prep migration (ADR-017 + ADR-018 schema additions) followed by Tier 0 federal seed script. See Session Retro in LegalAI Notion for tomorrow's opening move.
 
 ---
 _Last updated: 2026-04-19_
