@@ -4,6 +4,34 @@ Running record of shipped work. Newest entries at top. One entry per meaningful 
 
 ---
 
+## 2026-04-20 — Tier 0 Federal Seed Applied + external_ids extension
+
+### Shipped
+- **Phase 1 migration (20260420_001)**: `attribution_confidence` enum (6 values), `case_attorneys.attribution_confidence` column, attorneys `is_firm_member` / `bar_number` / `bar_state` (IF NOT EXISTS — BIL migration already added them), `external_ids` jsonb + GIN indexes on all 8 entity tables.
+- **Phase 2 schema extension (20260420_002)**: `cases.external_ids` jsonb + GIN index, closing the gap between Phase 1 migration and Phase 2 seed data map.
+- **Phase 2 seed script (`scripts/seed_tier_0_federal.py`)**: 411 lines, idempotent via `external_ids` containment checks, applied cleanly. **23 rows written**: 1 Garrett attorney, 1 USAO agency, 5 AUSA firm-records, 5 cases (all `tier_0_public`), 5 Garrett defense_lead `case_attorneys` (4 `attorney_verified` + 1 `firm_level_only`), 6 AUSA prosecution_lead `case_attorneys` (all `firm_level_only`).
+- **Idempotency verified empirically**: re-run of `--apply` produces 23 SKIPs, 0 INSERTs.
+- All DDL + DML on **legalai-dev** (`cfiaxrvtafszmgraftbk`). Prod (`kapyskpusteokxuaquwo`) untouched.
+
+### Decisions / ADRs Exercised
+- **ADR-017 (`firm_level_only` attribution)** — validated end-to-end via docket 64877115 (ancillary SEC filing in D. Arizona where Garrett's firm appeared but his name didn't). Exact design case.
+- **ADR-018 (firm member flag + bar credentials)** — Garrett seeded as `is_firm_member=true`, `bar_number=7469`, `bar_state=NV`. External AUSA rows `is_firm_member=false`.
+- **ADR-021 (external_ids pattern)** — extended beyond the original 8 entity tables to also cover `cases` in migration 002.
+- **ADR-022 (idempotent migration style)** — both migrations use `ADD COLUMN IF NOT EXISTS` / `CREATE INDEX IF NOT EXISTS` where applicable; seed script guards every insert by containment check.
+
+### Open Threads for Next Session
+- Judge seeding (Elayna J. Youchah, Cristina D. Silva) deferred to Ballotpedia pass.
+- Service-role key hygiene: `.env` currently carries one `SUPABASE_SERVICE_KEY`; `SUPABASE_DEV_SERVICE_KEY` separation flagged for a future cleanup.
+- Prod promotion of `20260420_001` + `002` migrations pending explicit approval.
+- Clark County state judge manual seed — real operational value, still not started.
+
+### Environment State After Ship
+- legalai-dev (`cfiaxrvtafszmgraftbk`): 30 tables, 23 rows of real Tier 0 data.
+- legalai prod (`kapyskpusteokxuaquwo`): untouched.
+- origin/main: this commit is the only delta since yesterday's session close.
+
+---
+
 ## 2026-04-19 — Behavioral Intelligence Layer + Baseline
 
 ### Shipped

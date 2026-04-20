@@ -1,0 +1,576 @@
+{
+  "total_dockets": 88,
+  "dockets_with_attorney_data": 72,
+  "total_unique_attorneys": 6944,
+  "total_unique_firms": 5374,
+  "nv_federal_docket_count": 23,
+  "nv_federal_criminal_docket_count": 15,
+  "by_court": {
+    "nvd": 21,
+    "deb": 18,
+    "nysb": 8,
+    "cacd": 6,
+    "njd": 3,
+    "nysd": 3,
+    "akd": 2,
+    "azd": 2,
+    "cod": 2,
+    "hid": 2,
+    "ncwb": 2,
+    "nvb": 2,
+    "paed": 2,
+    "almd": 1,
+    "canb": 1,
+    "cand": 1,
+    "cob": 1,
+    "hib": 1,
+    "ilnb": 1,
+    "mied": 1,
+    "ncmd": 1,
+    "ohnd": 1,
+    "ord": 1,
+    "txnb": 1,
+    "txsb": 1,
+    "vaeb": 1,
+    "wawb": 1,
+    "wvsd": 1
+  },
+  "top_attorneys_by_docket_count": [
+    {
+      "name": "Laura Davis Jones",
+      "docket_count": 5,
+      "dockets": [
+        4215895,
+        4216072,
+        17248433,
+        17248457,
+        17399355
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Richard L. Schepacarter",
+      "docket_count": 5,
+      "dockets": [
+        4215836,
+        4216072,
+        17209254,
+        65397107,
+        68912308
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "",
+      "docket_count": 4,
+      "dockets": [
+        4215836,
+        4326736,
+        4327483,
+        4718045
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Brya Michele Keilson",
+      "docket_count": 4,
+      "dockets": [
+        17209254,
+        17248433,
+        65397107,
+        67672580
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Eric J. Monzo",
+      "docket_count": 4,
+      "dockets": [
+        17209254,
+        17248433,
+        65397107,
+        67672580
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Garrett T Ogata",
+      "docket_count": 4,
+      "dockets": [
+        6040567,
+        63143665,
+        63232063,
+        66800213
+      ],
+      "is_garrett": true
+    },
+    {
+      "name": "Linda J. Casey",
+      "docket_count": 4,
+      "dockets": [
+        17248433,
+        18433346,
+        67672580,
+        70619299
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Patrick J. Reilley",
+      "docket_count": 4,
+      "dockets": [
+        4215192,
+        4499201,
+        17399355,
+        69545727
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Ray C. Schrock",
+      "docket_count": 4,
+      "dockets": [
+        327360,
+        17248433,
+        65397107,
+        70619299
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Timothy P. Cairns",
+      "docket_count": 4,
+      "dockets": [
+        4216072,
+        17248433,
+        17248457,
+        17399355
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Albert Kass",
+      "docket_count": 3,
+      "dockets": [
+        4215192,
+        4215895,
+        67672580
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Amanda R. Steele",
+      "docket_count": 3,
+      "dockets": [
+        4215192,
+        4215836,
+        65397107
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Andrew D. Velez-Rivera",
+      "docket_count": 3,
+      "dockets": [
+        4326736,
+        4327483,
+        4327513
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Benjamin Joseph Steele",
+      "docket_count": 3,
+      "dockets": [
+        17248433,
+        17248457,
+        69545727
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Daniel D. Hollingsworth",
+      "docket_count": 3,
+      "dockets": [
+        6040567,
+        29105792,
+        63232063
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "James E O'Neill",
+      "docket_count": 3,
+      "dockets": [
+        4215895,
+        4216072,
+        69545727
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Justin R. Alberto",
+      "docket_count": 3,
+      "dockets": [
+        4215895,
+        18433346,
+        70619299
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Norman L. Pernick",
+      "docket_count": 3,
+      "dockets": [
+        4499201,
+        17209254,
+        17399355
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Peter J Keane",
+      "docket_count": 3,
+      "dockets": [
+        17248433,
+        17248457,
+        68912308
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Richard (Tony) Anthony Lopez",
+      "docket_count": 3,
+      "dockets": [
+        63143665,
+        63232063,
+        66800213
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Richard W. Slack",
+      "docket_count": 3,
+      "dockets": [
+        327360,
+        4215192,
+        65397107
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Seth Van Aalten",
+      "docket_count": 3,
+      "dockets": [
+        4215895,
+        18433346,
+        70619299
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Steven J. Reisman",
+      "docket_count": 3,
+      "dockets": [
+        4326736,
+        4327483,
+        8026527
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Abraham J. Shanedling",
+      "docket_count": 2,
+      "dockets": [
+        16305746,
+        68346399
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Alan Joseph Stone",
+      "docket_count": 2,
+      "dockets": [
+        327360,
+        4350440
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Allison Reese",
+      "docket_count": 2,
+      "dockets": [
+        16886657,
+        16886658
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Andrew John Roth-Moore",
+      "docket_count": 2,
+      "dockets": [
+        17209254,
+        17399355
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Andrew L Magaziner",
+      "docket_count": 2,
+      "dockets": [
+        4215277,
+        67672580
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Andrew W.J. Tarr",
+      "docket_count": 2,
+      "dockets": [
+        4578414,
+        16751704
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Angel Manzano , Jr",
+      "docket_count": 2,
+      "dockets": [
+        5878262,
+        17263846
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Anthony D. Irpino",
+      "docket_count": 2,
+      "dockets": [
+        4538381,
+        6240169
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Arthur Jay Steinberg",
+      "docket_count": 2,
+      "dockets": [
+        4326736,
+        4350440
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "BRUCE W. STECKLER",
+      "docket_count": 2,
+      "dockets": [
+        4369937,
+        6245245
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Bicvan T Brown",
+      "docket_count": 2,
+      "dockets": [
+        5878262,
+        17263846
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Bradford J. Sandler",
+      "docket_count": 2,
+      "dockets": [
+        68912308,
+        69545727
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Brady Ryan Thomas",
+      "docket_count": 2,
+      "dockets": [
+        4538381,
+        6245245
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Brian P Walter",
+      "docket_count": 2,
+      "dockets": [
+        5878262,
+        17263846
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Bruce Grohsgal",
+      "docket_count": 2,
+      "dockets": [
+        4215277,
+        4216072
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "CHRISTOPHER A. SEEGER",
+      "docket_count": 2,
+      "dockets": [
+        4369937,
+        6245245
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Cathy Hershcopf",
+      "docket_count": 2,
+      "dockets": [
+        4215895,
+        17248433
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Charles W. Miller",
+      "docket_count": 2,
+      "dockets": [
+        4538381,
+        6245245
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Christopher A. Seeger",
+      "docket_count": 2,
+      "dockets": [
+        4538381,
+        6240169
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Connie Chuang Almond",
+      "docket_count": 2,
+      "dockets": [
+        5878262,
+        17263846
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Cory D. Kandestin",
+      "docket_count": 2,
+      "dockets": [
+        4215192,
+        4215836
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "D Brett Turnbull",
+      "docket_count": 2,
+      "dockets": [
+        5878262,
+        17263846
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Daniel G. Jarcho",
+      "docket_count": 2,
+      "dockets": [
+        4350440,
+        6240169
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Daniel J. DeFranceschi",
+      "docket_count": 2,
+      "dockets": [
+        65397107,
+        70619299
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Daniel Schiess",
+      "docket_count": 2,
+      "dockets": [
+        63143665,
+        66800213
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "Danny Young-In Yoo",
+      "docket_count": 2,
+      "dockets": [
+        5878262,
+        17263846
+      ],
+      "is_garrett": false
+    },
+    {
+      "name": "David B. Stratton",
+      "docket_count": 2,
+      "dockets": [
+        4215192,
+        4215895
+      ],
+      "is_garrett": false
+    }
+  ],
+  "ausas_identified": [
+    {
+      "firm": "U.S. Attorney's Office",
+      "docket_count": 7,
+      "dockets": [
+        6040567,
+        16192083,
+        16886657,
+        16886658,
+        29105792,
+        63143665,
+        66800213
+      ]
+    },
+    {
+      "firm": "United States Department of Justice, US Attorney's Office for the District of Nevada",
+      "docket_count": 2,
+      "dockets": [
+        63143665,
+        66800213
+      ]
+    },
+    {
+      "firm": "Department of Justice, US Attorneys Office",
+      "docket_count": 1,
+      "dockets": [
+        6040567
+      ]
+    },
+    {
+      "firm": "United States Attorney's Office",
+      "docket_count": 1,
+      "dockets": [
+        29105792
+      ]
+    },
+    {
+      "firm": "United States Attorneys Office District of Nevada",
+      "docket_count": 1,
+      "dockets": [
+        29105792
+      ]
+    }
+  ],
+  "garrett_as_counsel_dockets": [
+    6040567,
+    63143665,
+    63232063,
+    64877115,
+    66800213
+  ]
+}

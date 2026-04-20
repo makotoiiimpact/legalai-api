@@ -16,6 +16,7 @@ tmp/
 # These are byproducts of scripts/probe_*.py and scripts/pull_*.py
 # and can be regenerated at will. Kept out of git to avoid bloat.
 scripts/probe_output/garrett_recap/
+scripts/probe_output/garrett_parties/
 scripts/probe_output/opinions/
 scripts/probe_output/*_raw.json
 scripts/probe_output/*_dump.json
