@@ -45,7 +45,18 @@ Before applying new migrations to a fresh Supabase project, inventory prod's sch
 When a migration includes SQL-language functions and/or pgvector columns, use this order: Extensions → Tables → Functions → Indexes → Triggers → Views. SQL-language function bodies are parsed at CREATE time (must be after referenced tables). pgvector columns require explicit dimension (vector(1536) for text-embedding-3-small, vector(3072) for text-embedding-3-large). Bare `vector` fails at ivfflat index creation. Static validators (sqlparse) don't catch either bug — only runtime apply does. See ADR-016.
 
 ## Current Active Work
-Behavioral intelligence layer shipped (f5a6c7d baseline + c816673 layer). 30 tables live on legalai-dev (cfiaxrvtafszmgraftbk). Next session opens with seed prep migration (ADR-017 + ADR-018 schema additions) followed by Tier 0 federal seed script. See Session Retro in LegalAI Notion for tomorrow's opening move.
+V2 intake API routes shipped (routes/intake.py, 11 endpoints at /api/v2, commit 0a5b1f8). Frontend (legalai-ui commit 4ce00b9) wired to Railway /api/v2 via NEXT_PUBLIC_API_URL. Both deploys live end-to-end.
+
+**Stubs in place (separate specs):**
+- Entity extraction: mock (BackgroundTasks, 3s sleep → fake entities). Real Claude pipeline pending.
+- Matchup: hardcoded Banuelos-shaped fixture. Real aggregation-driven matchup pending.
+- Auth: none. Frontend passcode gate only.
+
+**Env split:**
+- Old routes (main.py) → SUPABASE_URL / SUPABASE_SERVICE_KEY → prod (kapyskpusteokxuaquwo)
+- /api/v2 routes (routes/intake.py) → SUPABASE_DEV_URL / SUPABASE_DEV_SERVICE_KEY → dev (cfiaxrvtafszmgraftbk)
+
+Next sessions: real Claude extraction, real matchup computation, auth middleware, nullable-client_name migration (currently worked around with placeholder strings).
 
 ---
-_Last updated: 2026-04-19_
+_Last updated: 2026-04-21_
