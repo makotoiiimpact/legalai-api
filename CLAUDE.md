@@ -29,10 +29,21 @@ Before any Supabase MCP call, verify you are targeting `kapyskpusteokxuaquwo` fo
 - **CourtListener API:** `COURTLISTENER_API_KEY` in Railway env + local `.env`. User-Agent: `LegalAI-IIIMPACT/0.1 (makoto@iiimpact.ai)`. Rate limit: 1.5s between calls.
 - **Anthropic / OpenAI / Supabase keys:** in `.env` (gitignored)
 
+## Route Architecture
+- Old routes: top-level paths in main.py (/cases, /health, etc.)
+  These hit prod (kapyskpusteokxuaquwo). Do not modify.
+- New routes: routes/intake.py mounted at /api/v2 in main.py.
+  These hit dev (cfiaxrvtafszmgraftbk). All UX Design v1
+  contract endpoints live here.
+- Field mappings (demo concessions documented in intake.py header):
+  client_name→caseName, jurisdiction→court, incident_date→filedDate,
+  charge (text)→Charge[] of length 1,
+  attributionConfidence derived from review_status.
+
 ## Agent Workflow Rules (inherited from Makoto's agency OS)
 1. **Committed ≠ deployed.** When reporting a task shipped, verify `git push` has run AND the Vercel/Railway deploy is live.
 2. **No destructive actions without explicit approval.** Migrations, deletes, mass inserts — draft and request review before executing.
-3. **Draft, don't execute, for schema migrations.** Write UP + DOWN + a review doc. Wait for human green-light.
+3. **Draft-don't-execute for schema migrations targeting prod** — UP + DOWN + review doc + human green-light. Dev applies are permitted after diagnostic verification.
 4. **For any migration that FKs into an existing table:** the FIRST tool call verifies the referenced column's type via `information_schema`. Do not assume uuid vs bigint.
 
 ### 5 — Every schema change goes through a versioned migration file
@@ -45,18 +56,25 @@ Before applying new migrations to a fresh Supabase project, inventory prod's sch
 When a migration includes SQL-language functions and/or pgvector columns, use this order: Extensions → Tables → Functions → Indexes → Triggers → Views. SQL-language function bodies are parsed at CREATE time (must be after referenced tables). pgvector columns require explicit dimension (vector(1536) for text-embedding-3-small, vector(3072) for text-embedding-3-large). Bare `vector` fails at ivfflat index creation. Static validators (sqlparse) don't catch either bug — only runtime apply does. See ADR-016.
 
 ## Current Active Work
-V2 intake API routes shipped (routes/intake.py, 11 endpoints at /api/v2, commit 0a5b1f8). Frontend (legalai-ui commit 4ce00b9) wired to Railway /api/v2 via NEXT_PUBLIC_API_URL. Both deploys live end-to-end.
+V2 intake API routes shipped (routes/intake.py, 11 endpoints
+under /api/v2). Frontend wired to Railway. Entity extraction
+is stubbed (3s delay + mock entities). Matchup returns fixture
+data on confirmed cases. Auth = none (demo passcode at frontend).
 
-**Stubs in place (separate specs):**
-- Entity extraction: mock (BackgroundTasks, 3s sleep → fake entities). Real Claude pipeline pending.
-- Matchup: hardcoded Banuelos-shaped fixture. Real aggregation-driven matchup pending.
-- Auth: none. Frontend passcode gate only.
+Backend delta migrations (001 + 002) applied to legalai-dev:
+case_review_status enum, extraction_candidates review/match/
+correction columns, case-documents storage bucket + RLS.
 
-**Env split:**
-- Old routes (main.py) → SUPABASE_URL / SUPABASE_SERVICE_KEY → prod (kapyskpusteokxuaquwo)
-- /api/v2 routes (routes/intake.py) → SUPABASE_DEV_URL / SUPABASE_DEV_SERVICE_KEY → dev (cfiaxrvtafszmgraftbk)
-
-Next sessions: real Claude extraction, real matchup computation, auth middleware, nullable-client_name migration (currently worked around with placeholder strings).
+Known stubs awaiting separate specs:
+- Real Claude extraction pipeline
+- Real aggregation-driven matchup computation
+- Auth middleware
+- Schema alignment migration (case_name, court, court_dept,
+  filed_date as proper columns; charges normalization;
+  attribution_confidence on extraction_candidates;
+  nullable client_name)
+- Backfill Tier 0 seed cases review_status from 'shell'
+- Rule 3 qualifier applied (see below)
 
 ---
 _Last updated: 2026-04-21_
