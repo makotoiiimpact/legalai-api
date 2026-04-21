@@ -33,6 +33,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
 
+from routes.intake import router as intake_router
+
 load_dotenv()
 
 app = FastAPI(
@@ -54,6 +56,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# v2 intake API routes (firm case intake — UX Design v1 surface).
+# Hits legalai-dev (cfiaxrvtafszmgraftbk). Old routes below stay on prod.
+app.include_router(intake_router, prefix="/api/v2")
 
 # ─── Lazy Supabase client ──────────────────────────────────────────────────────
 
