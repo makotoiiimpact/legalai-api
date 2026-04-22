@@ -13,7 +13,8 @@ Field mapping concessions for v1 (flagged for future migration):
 - cases.jurisdiction  → JSON court
 - cases.incident_date → JSON filedDate
 - JSON courtDept      → null (no column on cases yet)
-- cases.charge (single text) → JSON charges (wrapped as 1-element array)
+- cases.charge (single text) → JSON charges (split on ';' + statute parsed
+  from trailing "(NRS ...)" / "(USC ...)"; fallback to 1-element array)
 - EntityCandidate.attributionConfidence is derived from review_status
   because extraction_candidates has no attribution_confidence column
   (that column lives on case_attorneys).
@@ -34,6 +35,7 @@ naming convention that will map to auth.uid() once auth ships.
 """
 
 import os
+import re
 import uuid
 from datetime import datetime
 from pathlib import Path
@@ -223,15 +225,56 @@ def build_extracted_fields(case_row):
     ]
 
 
+# Matches "(NRS 484C.110)" / "(USC 18.3)" etc. anchored at end of a segment.
+_STATUTE_RE = re.compile(r"\(((?:NRS|USC)[^)]+)\)\s*$", re.IGNORECASE)
+# Matches leading "COUNT 1:" / "COUNT 12: " etc. produced by run_extraction.
+_COUNT_PREFIX_RE = re.compile(r"^\s*COUNT\s+\d+\s*:\s*", re.IGNORECASE)
+
+
 def build_charges(case_row):
+    """cases.charge is a single TEXT column. run_extraction writes multiple
+    counts as "COUNT 1: desc (NRS X); COUNT 2: desc (NRS Y)". Split on ';'
+    and parse each segment into a Charge object so Screen 4 (review) renders
+    one bullet per count with a separate statute chip.
+
+    On any parsing failure, falls back to a single-bullet representation so
+    we never drop the charge text entirely."""
     charge_text = case_row.get("charge")
     if not charge_text:
         return []
-    return [{
-        "id": f"charge-{case_row['id']}-1",
+
+    case_id = case_row["id"]
+    fallback = [{
+        "id": f"charge-{case_id}-1",
         "text": charge_text,
         "statute": None,
     }]
+
+    try:
+        segments = [s.strip() for s in charge_text.split(";") if s.strip()]
+        if not segments:
+            return fallback
+
+        charges = []
+        for i, seg in enumerate(segments, start=1):
+            body = _COUNT_PREFIX_RE.sub("", seg).strip()
+            statute_match = _STATUTE_RE.search(body)
+            if statute_match:
+                statute = statute_match.group(1).strip()
+                text = body[: statute_match.start()].strip()
+            else:
+                statute = None
+                text = body
+            if not text:
+                return fallback
+            charges.append({
+                "id": f"charge-{case_id}-{i}",
+                "text": text,
+                "statute": statute,
+            })
+        return charges
+    except Exception:
+        return fallback
 
 
 def build_documents(capture_rows):
