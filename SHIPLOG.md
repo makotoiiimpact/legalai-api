@@ -4,6 +4,38 @@ Running record of shipped work. Newest entries at top. One entry per meaningful 
 
 ---
 
+## 2026-04-21 — Real Claude Extraction Pipeline
+
+**Commits:** 2 (extraction pipeline + charges parser)
+**Last pushed:** f7cdd00 on origin/main
+
+### Shipped
+- Real Claude PDF extraction replacing simulate_extraction() stub
+- services/extraction.py: extract_text_from_pdf (pdfplumber) → extract_entities_with_claude (claude-sonnet-4-20250514) → match_entity_against_existing
+- Entity types: judge, prosecutor, defense_attorney, defendant, case_number, court, filed_date, charges
+- Confidence scoring 0.0-1.0 from Claude prompt, mapped to high/medium/low labels on read
+- Entity matching against existing judges/prosecutors/attorneys tables (⚡ matched UX)
+- Firm-member auto-confirm (is_firm_member=true → review_status='confirmed')
+- Cases row populated from extraction: case_number, jurisdiction, incident_date, client_name, charge
+- Charges written as semicolon-delimited string, parsed into individual Charge objects with statute extraction in build_charges()
+- Error handling: ExtractionError for bad PDFs, malformed Claude JSON; unexpected errors caught; all surfaced via capture_events.status='error' + processing_error
+- Extracted text cached in capture_events.raw_payload for re-extraction without re-download
+- Test PDF generator: scripts/create_test_complaint.py (Nevada DUI complaint with Kephart/Chen/Ogata/Martinez)
+
+### Not shipped (intentional)
+- OCR for scanned PDFs (v2)
+- Charges normalization migration (separate charge rows vs single text column)
+- prior_case_count on entity matches (needs aggregation tables, post-demo)
+- Prod promotion (dev only, cfiaxrvtafszmgraftbk)
+
+### Design decisions
+- Sonnet not Opus for extraction (cost + speed, structured data task)
+- 2-arg signature preserved for BackgroundTasks compatibility
+- No 'error' value on case_review_status enum — errors surfaced via capture_events only
+- Charges as concatenated text in cases.charge, parsed into array on read (schema unchanged)
+
+---
+
 ## 2026-04-20 — Tier 0 Federal Seed Applied + external_ids extension
 
 ### Shipped
