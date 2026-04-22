@@ -451,6 +451,105 @@ def _fetch_confirmed_entity_names(db, case_id: str) -> tuple[Optional[str], Opti
     return (judge, prosecutor)
 
 
+def _count_cases_with_entity(db, candidate_type: str, entity_name: str) -> int:
+    """Count distinct confirmed cases that have a confirmed/edited extraction
+    candidate of the given type whose name case-insensitive-matches.
+
+    Drives priorCasesWithYou on the matchup card — "You've appeared before
+    Kephart 2 times" for two confirmed cases with Kephart as the judge.
+    Includes the current case, which is the intended "cases you've seen
+    this entity on" definition.
+
+    Three cheap queries rather than a server-side join because supabase-py
+    doesn't expose PostgREST embedded resources for our shape cleanly, and
+    the list of candidates is small for the demo. Revisit with a proper
+    aggregation view when this matters for >10s of cases.
+    """
+    if not entity_name:
+        return 0
+    wanted = entity_name.strip().lower()
+    try:
+        cands = (
+            db.table("extraction_candidates")
+              .select("capture_event_id, proposed_payload")
+              .eq("candidate_type", candidate_type)
+              .in_("review_status", ["confirmed", "edited"])
+              .execute().data or []
+        )
+    except Exception as e:
+        print(f"[_count_cases_with_entity] candidates query failed: {e}")
+        return 0
+
+    cap_ids = sorted({
+        c["capture_event_id"]
+        for c in cands
+        if ((c.get("proposed_payload") or {}).get("name") or "").strip().lower() == wanted
+        and c.get("capture_event_id")
+    })
+    if not cap_ids:
+        return 0
+
+    try:
+        caps = (
+            db.table("capture_events")
+              .select("id, case_id")
+              .in_("id", cap_ids)
+              .execute().data or []
+        )
+    except Exception as e:
+        print(f"[_count_cases_with_entity] capture_events query failed: {e}")
+        return 0
+
+    case_ids = sorted({c["case_id"] for c in caps if c.get("case_id")})
+    if not case_ids:
+        return 0
+
+    try:
+        cases = (
+            db.table("cases")
+              .select("id")
+              .in_("id", case_ids)
+              .eq("review_status", "confirmed")
+              .execute().data or []
+        )
+    except Exception as e:
+        print(f"[_count_cases_with_entity] cases query failed: {e}")
+        return 0
+
+    return len(cases)
+
+
+def _title_case_name(s: str) -> str:
+    """Mirror the frontend's titleCaseName so strings baked into the fixture
+    (patternNarrative, placeholderCopy) render consistently with the names
+    the UI displays via its own titleCaseName pass.
+
+    Strings that already contain any lowercase letter are returned unchanged;
+    all-caps words get title-cased word-by-word, with single-letter initials
+    like "T." preserved.
+    """
+    if not s or any(c.islower() for c in s):
+        return s
+    out = []
+    for part in s.split():
+        if len(part) <= 2 and part.endswith("."):
+            out.append(part)
+        else:
+            out.append(part[:1].upper() + part[1:].lower())
+    return " ".join(out)
+
+
+def _last_name(full_name: str) -> str:
+    """Return the title-cased last whitespace-separated token of a name after
+    stripping any trailing comma-qualified suffix ("JOHN JONES, DDA" → "Jones")."""
+    if not full_name:
+        return ""
+    stripped = full_name.split(",")[0].strip()
+    parts = stripped.split()
+    tail = parts[-1] if parts else stripped
+    return _title_case_name(tail)
+
+
 @router.get("/cases/{case_id}/matchup")
 def get_matchup(case_id: str):
     db = get_dev_db()
@@ -459,17 +558,26 @@ def get_matchup(case_id: str):
         raise HTTPException(404, "Case not found")
     if rows[0].get("review_status") != "confirmed":
         return None
-    # v1 stub: Banuelos-shaped fixture for motion stats, narrative, own-record.
-    # Names are pulled from the case's confirmed entities so the card matches
-    # what Garrett saw on Screen 4. Real aggregation-driven matchup is post-
-    # demo (spec D5). patternNarrative still references Kephart by name — fine
-    # for the Carlos demo (PDF has Kephart); revisit when seeding more judges.
+    # v1 stub: motion stats, own-record, and growthHint stay as fixture data
+    # (aggregation-driven matchup is post-demo, spec D5). Names, per-entity
+    # counts, and copy that references those names are now pulled from the
+    # case's confirmed entities + the set of other confirmed cases that share
+    # them, so Garrett sees coherent "before Kephart 2 times" numbers rather
+    # than a hardcoded "4".
     judge_name, prosecutor_name = _fetch_confirmed_entity_names(db, case_id)
+    judge_display = judge_name or "William Kephart"
+    prosecutor_display = prosecutor_name or "John Jones, DDA"
+    judge_last = _last_name(judge_display)
+    prosecutor_last = _last_name(prosecutor_display)
+    judge_prior = _count_cases_with_entity(db, "judge", judge_name) if judge_name else 0
+    prosecutor_prior = (
+        _count_cases_with_entity(db, "prosecutor", prosecutor_name) if prosecutor_name else 0
+    )
     return {
         "caseId": case_id,
         "judge": {
-            "judgeName": judge_name or "William Kephart",
-            "priorCasesWithYou": 4,
+            "judgeName": judge_display,
+            "priorCasesWithYou": judge_prior,
             "tier": "building",
             "motionStats": [
                 {"label": "Suppression motions", "granted": 3, "total": 4},
@@ -477,7 +585,7 @@ def get_matchup(case_id: str):
             ],
             "avgDispositionDays": 94,
             "patternNarrative": (
-                "Kephart tends to grant suppression motions when bodycam "
+                f"{judge_last} tends to grant suppression motions when bodycam "
                 "evidence is contested. He has denied 1 motion where the "
                 "stop was based on a 911 caller report."
             ),
@@ -488,11 +596,11 @@ def get_matchup(case_id: str):
             },
         },
         "prosecutor": {
-            "prosecutorName": prosecutor_name or "John Jones, DDA",
-            "priorCasesWithYou": 1,
+            "prosecutorName": prosecutor_display,
+            "priorCasesWithYou": prosecutor_prior,
             "tier": "sparse",
             "placeholderCopy": (
-                "When you've faced Jones on 3+ cases, you'll see plea offer "
+                f"When you've faced {prosecutor_last} on 3+ cases, you'll see plea offer "
                 "patterns and timing, trial vs. plea tendencies, and charge "
                 "bargaining behavior."
             ),
