@@ -19,9 +19,11 @@ Field mapping concessions for v1 (flagged for future migration):
   (that column lives on case_attorneys).
 
 Stubs (per spec D4/D5):
-- POST /cases/upload launches simulate_extraction() as a BackgroundTask
-  which sleeps 3s then inserts mock extraction_candidates rows.
-  Real Claude extraction pipeline is a future spec.
+- POST /cases/upload launches run_extraction() (services/extraction.py) as a
+  BackgroundTask. Real Tier 1 Claude extraction: downloads the PDF from the
+  case-documents bucket, extracts text with pdfplumber, sends to Claude for
+  structured entity extraction, matches against existing judges/prosecutors/
+  attorneys, writes extraction_candidates rows, updates the cases row.
 - GET /cases/{id}/matchup returns hardcoded Banuelos-shaped fixture.
   Real matchup computation from aggregation tables is post-demo.
 
@@ -31,7 +33,6 @@ the storage.objects RLS policies we set up in 20260421_002, so the
 naming convention that will map to auth.uid() once auth ships.
 """
 
-import asyncio
 import os
 import uuid
 from datetime import datetime
@@ -41,6 +42,8 @@ from typing import Literal, Optional
 from dotenv import load_dotenv
 from fastapi import APIRouter, BackgroundTasks, File, HTTPException, UploadFile
 from pydantic import BaseModel
+
+from services.extraction import run_extraction
 
 # Explicit .env path per legalai-api CLAUDE.md (python-dotenv 3.14 bug with find_dotenv).
 load_dotenv(Path(__file__).parent.parent / ".env")
@@ -475,7 +478,7 @@ async def upload_case(background_tasks: BackgroundTasks, file: UploadFile = File
     case_id = str(uuid.uuid4())
 
     # 1. Create case row. client_name is NOT NULL on cases so we stash a
-    # placeholder that simulate_extraction overwrites when it finishes.
+    # placeholder that run_extraction overwrites when it finishes.
     placeholder_number = f"pending-{case_id[:8]}"
     db.table("cases").insert({
         "id": case_id,
@@ -518,73 +521,14 @@ async def upload_case(background_tasks: BackgroundTasks, file: UploadFile = File
         "created_by": None,
     }).execute()
 
-    # 4. Launch stubbed extraction (skipped for images per UX spec).
+    # 4. Launch Tier 1 extraction (skipped for images — image OCR is future work).
     if not is_image:
-        background_tasks.add_task(simulate_extraction, case_id, capture_id)
+        background_tasks.add_task(run_extraction, case_id, capture_id)
 
     # 5. Return initial CaseDetail.
     case_row = (db.table("cases").select("*").eq("id", case_id).execute().data or [None])[0]
     caps = db.table("capture_events").select("*").eq("case_id", case_id).execute().data or []
     return build_case_detail(case_row, [], caps)
-
-
-async def simulate_extraction(case_id: str, capture_event_id: str):
-    """STUB per spec D4. Real Claude extraction pipeline is a future spec.
-    Sleeps 3s (demo-latency), inserts 5 mock extraction_candidates, fills
-    in case fields, flips review_status to 'needs_review'."""
-    await asyncio.sleep(3)
-    db = get_dev_db()
-
-    fixtures = [
-        {
-            "candidate_type": "judge",
-            "proposed_payload": {"name": "William Kephart", "role": "judge", "matched_prior_cases": 3},
-            "confidence_score": 0.95,
-        },
-        {
-            "candidate_type": "prosecutor",
-            "proposed_payload": {"name": "John Jones, Deputy District Attorney", "role": "prosecutor"},
-            "confidence_score": 0.92,
-        },
-        {
-            "candidate_type": "attorney",
-            "proposed_payload": {"name": "Garrett T. Ogata", "role": "defense_attorney", "is_firm_member": True},
-            "confidence_score": 0.99,
-        },
-        {
-            "candidate_type": "other",
-            "proposed_payload": {"name": "Carlos Banuelos", "role": "defendant"},
-            "confidence_score": 0.88,
-        },
-        {
-            "candidate_type": "officer",
-            "proposed_payload": {"name": "Officer M. Chen (LVMPD)", "role": "officer"},
-            "confidence_score": 0.71,
-        },
-    ]
-
-    for f in fixtures:
-        is_firm = f["proposed_payload"].get("is_firm_member") is True
-        db.table("extraction_candidates").insert({
-            "id": str(uuid.uuid4()),
-            "capture_event_id": capture_event_id,
-            "firm_id": None,
-            "candidate_type": f["candidate_type"],
-            "proposed_payload": f["proposed_payload"],
-            "confidence_score": f["confidence_score"],
-            "status": "pending",
-            "review_status": "confirmed" if is_firm else "pending",
-        }).execute()
-
-    db.table("cases").update({
-        "case_number": "A-26-DEMO-1",
-        "client_name": "Banuelos",
-        "case_type": "Criminal – DUI",
-        "jurisdiction": "Clark County",
-        "incident_date": "2021-03-15",
-        "charge": "DUI – 1st offense (NRS 484C.110)",
-        "review_status": "needs_review",
-    }).eq("id", case_id).execute()
 
 
 # ─── Entity review actions ───────────────────────────────────────────────────
