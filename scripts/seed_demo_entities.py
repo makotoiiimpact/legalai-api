@@ -100,10 +100,23 @@ judge_id = upsert("judges", "full_name", "William Kephart", {
 })
 
 # 4. Prosecutor Sarah Chen — Deputy District Attorney.
-prosecutor_id = upsert("prosecutors", "full_name", "Sarah Chen", {
+chen_id = upsert("prosecutors", "full_name", "Sarah Chen", {
     "full_name": "Sarah Chen",
     "first_name": "Sarah",
     "last_name": "Chen",
+    "title": "Deputy District Attorney",
+    "agency_id": agency_id,
+    "active": True,
+    "data_source": SEED_SOURCE,
+    "external_ids": {"source": SEED_SOURCE},
+})
+
+# 5. Prosecutor Michael Rodriguez — DDA on the Davis test case so the
+#    second demo case also resolves to a known prosecutor.
+rodriguez_id = upsert("prosecutors", "full_name", "Michael Rodriguez", {
+    "full_name": "Michael Rodriguez",
+    "first_name": "Michael",
+    "last_name": "Rodriguez",
     "title": "Deputy District Attorney",
     "agency_id": agency_id,
     "active": True,
@@ -116,4 +129,5 @@ print("Done.")
 print(f"  court_id:      {court_id}")
 print(f"  agency_id:     {agency_id}")
 print(f"  judge_id:      {judge_id}")
-print(f"  prosecutor_id: {prosecutor_id}")
+print(f"  chen_id:       {chen_id}")
+print(f"  rodriguez_id:  {rodriguez_id}")
