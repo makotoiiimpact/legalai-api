@@ -124,10 +124,62 @@ rodriguez_id = upsert("prosecutors", "full_name", "Michael Rodriguez", {
     "external_ids": {"source": SEED_SOURCE},
 })
 
+# 6. Judge Tierra Jones — Dept. IX. Powers drug-possession + second-DUI
+#    demo cases so the matchup card shows judge variety.
+jones_judge_id = upsert("judges", "full_name", "Tierra Jones", {
+    "full_name": "Tierra Jones",
+    "first_name": "Tierra",
+    "last_name": "Jones",
+    "department": "IX",
+    "court_id": court_id,
+    "data_source": SEED_SOURCE,
+    "external_ids": {"source": SEED_SOURCE},
+})
+
+# 7. Judge Jerry Wiese — Dept. XXVI. Single-case judge in the demo so the
+#    matchup card can show the "Not enough data yet" sparse tier.
+wiese_id = upsert("judges", "full_name", "Jerry Wiese", {
+    "full_name": "Jerry Wiese",
+    "first_name": "Jerry",
+    "last_name": "Wiese",
+    "department": "XXVI",
+    "court_id": court_id,
+    "data_source": SEED_SOURCE,
+    "external_ids": {"source": SEED_SOURCE},
+})
+
+# 8. Prosecutor Jessica Walsh — DDA on the drug-possession case.
+walsh_id = upsert("prosecutors", "full_name", "Jessica Walsh", {
+    "full_name": "Jessica Walsh",
+    "first_name": "Jessica",
+    "last_name": "Walsh",
+    "title": "Deputy District Attorney",
+    "agency_id": agency_id,
+    "active": True,
+    "data_source": SEED_SOURCE,
+    "external_ids": {"source": SEED_SOURCE},
+})
+
+# 9. Prosecutor David Schwartz — DDA on the domestic-violence case.
+schwartz_id = upsert("prosecutors", "full_name", "David Schwartz", {
+    "full_name": "David Schwartz",
+    "first_name": "David",
+    "last_name": "Schwartz",
+    "title": "Deputy District Attorney",
+    "agency_id": agency_id,
+    "active": True,
+    "data_source": SEED_SOURCE,
+    "external_ids": {"source": SEED_SOURCE},
+})
+
 print("-" * 70)
 print("Done.")
-print(f"  court_id:      {court_id}")
-print(f"  agency_id:     {agency_id}")
-print(f"  judge_id:      {judge_id}")
-print(f"  chen_id:       {chen_id}")
-print(f"  rodriguez_id:  {rodriguez_id}")
+print(f"  court_id:       {court_id}")
+print(f"  agency_id:      {agency_id}")
+print(f"  kephart_id:     {judge_id}")
+print(f"  jones_judge_id: {jones_judge_id}")
+print(f"  wiese_id:       {wiese_id}")
+print(f"  chen_id:        {chen_id}")
+print(f"  rodriguez_id:   {rodriguez_id}")
+print(f"  walsh_id:       {walsh_id}")
+print(f"  schwartz_id:    {schwartz_id}")
