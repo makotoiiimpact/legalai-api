@@ -351,6 +351,7 @@ def list_cases():
     cases = db.table("cases").select("*").execute().data or []
     caps = db.table("capture_events").select("id, case_id").execute().data or []
     cap_to_case = {c["id"]: c["case_id"] for c in caps}
+    case_has_capture = set(cap_to_case.values())
     cands = db.table("extraction_candidates").select("*").execute().data or []
     by_case: dict[str, list[dict]] = {}
     for c in cands:
@@ -360,6 +361,16 @@ def list_cases():
 
     summaries = []
     for case_row in cases:
+        # Hide Tier 0 seed cases with no uploaded document. Those are test-
+        # harness rows preserved for their case_attorneys attribution data;
+        # they have no intake artifact and clutter Garrett's list. The seed
+        # rows stay in the DB; a future /admin view can surface them if
+        # needed.
+        if (
+            case_row.get("data_tier") == "tier_0_public"
+            and case_row["id"] not in case_has_capture
+        ):
+            continue
         cs = by_case.get(case_row["id"], [])
         ec, cc, ambig, hm = compute_entity_counts(cs, case_row)
         summaries.append(build_case_summary(case_row, ec, cc, hm, ambig))
