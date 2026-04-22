@@ -422,6 +422,35 @@ def get_extraction(case_id: str):
     }
 
 
+def _fetch_confirmed_entity_names(db, case_id: str) -> tuple[Optional[str], Optional[str]]:
+    """Pull the confirmed judge + prosecutor names from extraction_candidates
+    so the matchup card echoes the names Garrett just reviewed, not names from
+    someone else's case. Returns (judge_name, prosecutor_name), either None if
+    the role wasn't extracted or wasn't confirmed."""
+    caps = db.table("capture_events").select("id").eq("case_id", case_id).execute().data or []
+    cap_ids = [c["id"] for c in caps]
+    if not cap_ids:
+        return (None, None)
+    cands = (
+        db.table("extraction_candidates")
+          .select("candidate_type, proposed_payload, review_status")
+          .in_("capture_event_id", cap_ids)
+          .in_("review_status", ["confirmed", "edited"])
+          .execute().data or []
+    )
+    judge = prosecutor = None
+    for c in cands:
+        payload = c.get("proposed_payload") or {}
+        name = (payload.get("name") or "").strip()
+        if not name:
+            continue
+        if c["candidate_type"] == "judge" and not judge:
+            judge = name
+        elif c["candidate_type"] == "prosecutor" and not prosecutor:
+            prosecutor = name
+    return (judge, prosecutor)
+
+
 @router.get("/cases/{case_id}/matchup")
 def get_matchup(case_id: str):
     db = get_dev_db()
@@ -430,11 +459,16 @@ def get_matchup(case_id: str):
         raise HTTPException(404, "Case not found")
     if rows[0].get("review_status") != "confirmed":
         return None
-    # v1 stub: Banuelos-shaped fixture. Real aggregation-driven matchup is post-demo (spec D5).
+    # v1 stub: Banuelos-shaped fixture for motion stats, narrative, own-record.
+    # Names are pulled from the case's confirmed entities so the card matches
+    # what Garrett saw on Screen 4. Real aggregation-driven matchup is post-
+    # demo (spec D5). patternNarrative still references Kephart by name — fine
+    # for the Carlos demo (PDF has Kephart); revisit when seeding more judges.
+    judge_name, prosecutor_name = _fetch_confirmed_entity_names(db, case_id)
     return {
         "caseId": case_id,
         "judge": {
-            "judgeName": "William Kephart",
+            "judgeName": judge_name or "William Kephart",
             "priorCasesWithYou": 4,
             "tier": "building",
             "motionStats": [
@@ -454,7 +488,7 @@ def get_matchup(case_id: str):
             },
         },
         "prosecutor": {
-            "prosecutorName": "John Jones, DDA",
+            "prosecutorName": prosecutor_name or "John Jones, DDA",
             "priorCasesWithYou": 1,
             "tier": "sparse",
             "placeholderCopy": (
