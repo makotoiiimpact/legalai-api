@@ -6,8 +6,8 @@ Running record of shipped work. Newest entries at top. One entry per meaningful 
 
 ## 2026-04-21 — Real Claude Extraction Pipeline
 
-**Commits:** 2 (extraction pipeline + charges parser)
-**Last pushed:** f7cdd00 on origin/main
+**Commits:** 3 (extraction pipeline + charges parser + CHECK-value fix)
+**Last pushed:** 5c36dc1 on origin/main
 
 ### Shipped
 - Real Claude PDF extraction replacing simulate_extraction() stub
@@ -21,6 +21,7 @@ Running record of shipped work. Newest entries at top. One entry per meaningful 
 - Error handling: ExtractionError for bad PDFs, malformed Claude JSON; unexpected errors caught; all surfaced via capture_events.status='error' + processing_error
 - Extracted text cached in capture_events.raw_payload for re-extraction without re-download
 - Test PDF generator: scripts/create_test_complaint.py (Nevada DUI complaint with Kephart/Chen/Ogata/Martinez)
+- Pipeline verified end-to-end on Railway (5c36dc1): test_complaint.pdf → Claude extraction → 4 entity cards (Kephart, Chen, Ogata auto-confirmed, Martinez) + 2 charges with statutes + case fields populated. CHECK constraint fix (extracting/awaiting_review status values) shipped mid-session.
 
 ### Not shipped (intentional)
 - OCR for scanned PDFs (v2)
