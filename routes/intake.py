@@ -389,6 +389,40 @@ def get_case(case_id: str):
     return build_case_detail(case_row, cands, caps)
 
 
+@router.get("/cases/{case_id}/documents/{document_id}/url")
+def get_document_url(case_id: str, document_id: str):
+    """Return a 1-hour signed URL for a case document so the Screen 5 View
+    button can window.open() the PDF. document_id is the capture_event_id
+    that build_documents exposed as Document.id to the frontend. The
+    case-documents bucket is private with RLS; the service role used by
+    this backend creates signed URLs without invoking RLS."""
+    db = get_dev_db()
+    rows = (
+        db.table("capture_events")
+          .select("id, source_metadata")
+          .eq("id", document_id)
+          .eq("case_id", case_id)
+          .execute().data or []
+    )
+    if not rows:
+        raise HTTPException(404, "Document not found")
+    storage_path = (rows[0].get("source_metadata") or {}).get("storage_path")
+    if not storage_path:
+        raise HTTPException(404, "Document has no storage path on record")
+    try:
+        result = db.storage.from_("case-documents").create_signed_url(storage_path, 3600)
+    except Exception as e:
+        raise HTTPException(500, f"Storage create_signed_url failed: {e}")
+    # supabase-py returns the URL under "signedURL" (most versions) or
+    # "signedUrl"; accept either. Some versions wrap in {'data': {...}}.
+    inner = result.get("data") if isinstance(result, dict) else None
+    payload = inner if isinstance(inner, dict) else (result if isinstance(result, dict) else {})
+    url = payload.get("signedURL") or payload.get("signedUrl") or payload.get("signed_url")
+    if not url:
+        raise HTTPException(500, f"Storage did not return a signed URL; got {result!r}")
+    return {"url": url}
+
+
 @router.get("/cases/{case_id}/extraction")
 def get_extraction(case_id: str):
     db = get_dev_db()
