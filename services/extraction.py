@@ -58,7 +58,8 @@ Respond with ONLY a JSON object. No markdown, no explanation.
 JSON schema:
 {
   "case_number": {"value": "string or null", "confidence": 0.0-1.0, "source_context": "string"},
-  "court": {"value": "string or null", "confidence": 0.0-1.0, "source_context": "string"},
+  "court": {"value": "string or null", "confidence": 0.0-1.0, "source_context": "string", "department": "string or null"},
+  "case_type": {"value": "string or null", "confidence": 0.0-1.0, "source_context": "string"},
   "judge": {"value": "string or null", "confidence": 0.0-1.0, "source_context": "string", "title": "string or null"},
   "prosecutor": {"value": "string or null", "confidence": 0.0-1.0, "source_context": "string", "title": "string or null"},
   "defense_attorney": {"value": "string or null", "confidence": 0.0-1.0, "source_context": "string", "title": "string or null"},
@@ -76,6 +77,11 @@ Rules:
 - Judge names often follow "DEPT.", "DEPARTMENT", "The Honorable", or "JUDGE".
 - Defense attorney may appear as "Attorney for Defendant", "Counsel for Defense", or "Represented by".
 - Charges appear as "COUNT I:", "COUNT II:" or as a list of NRS/USC statutes. Extract ALL charges, not just the first.
+- court.department: number appears after "DEPT.", "DEPT. NO.", "DEPARTMENT", or "DIV." and is a Roman numeral (XIV) or Arabic number (14, 7). Extract the identifier as-is.
+- case_type: infer from charges + court context. Common values:
+    "Criminal — DUI", "Criminal — Drug Possession", "Criminal — Domestic Violence",
+    "Criminal — Assault", "Criminal — Theft/Fraud", "Civil", "Family".
+    For any filing with NRS 484C charges, return "Criminal — DUI".
 - Confidence scoring:
   - 0.9-1.0: name appears in a header/caption with clear role label
   - 0.7-0.89: name appears with contextual role indicators
@@ -330,13 +336,22 @@ def _update_case_from_extracted(db: Client, case_id: str, extracted: dict):
     if cn:
         updates["case_number"] = cn
 
-    court = (extracted.get("court") or {}).get("value")
+    court_obj = extracted.get("court") or {}
+    court = court_obj.get("value")
     if court:
-        updates["jurisdiction"] = court
+        # v1 cases has no court_dept column (schema-alignment migration
+        # pending). Fold "Dept. XIV" into jurisdiction text so the Review /
+        # Confirmed Case views can render it without a frontend change.
+        dept = (court_obj.get("department") or "").strip()
+        updates["jurisdiction"] = f"{court}, Dept. {dept}" if dept else court
 
     filed = (extracted.get("filed_date") or {}).get("value")
     if filed:
         updates["incident_date"] = filed
+
+    ctype = (extracted.get("case_type") or {}).get("value")
+    if ctype:
+        updates["case_type"] = ctype
 
     defendant = (extracted.get("defendant") or {}).get("value")
     if defendant:
