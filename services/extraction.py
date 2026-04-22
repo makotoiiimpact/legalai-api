@@ -388,13 +388,18 @@ async def run_extraction(case_id: str, capture_event_id: str):
 
     Flow:
       1. Read capture_events.source_metadata.storage_path.
-      2. capture_events.status: received → processing
+      2. capture_events.status: received → extracting
       3. cases.review_status: processing (idempotent; upload sets this already)
       4. Download PDF, extract text, cache first 50K chars on raw_payload.
       5. Claude entity extraction.
       6. Insert extraction_candidates (judge/prosecutor/attorney/defendant).
       7. Update cases legacy columns from extracted fields + charges.
-      8. capture_events.status → completed; cases.review_status → needs_review.
+      8. capture_events.status → awaiting_review; cases.review_status → needs_review.
+
+    capture_events.status values are constrained by capture_events_status_check
+    to: received, extracting, awaiting_review, confirmed, rejected, error.
+    cases.review_status uses its own separate case_review_status enum, which
+    is why the two status fields use different vocabularies.
 
     On ExtractionError or unexpected error: capture_events.status → 'error'
     with processing_error populated. cases.review_status is left alone (the
@@ -424,7 +429,7 @@ async def run_extraction(case_id: str, capture_event_id: str):
         return
 
     try:
-        db.table("capture_events").update({"status": "processing"}).eq("id", capture_event_id).execute()
+        db.table("capture_events").update({"status": "extracting"}).eq("id", capture_event_id).execute()
         db.table("cases").update({"review_status": "processing"}).eq("id", case_id).execute()
 
         document_text = await extract_text_from_pdf(db, storage_path)
@@ -438,7 +443,7 @@ async def run_extraction(case_id: str, capture_event_id: str):
         candidates_created = _insert_entity_candidates(db, capture_event_id, extracted)
         _update_case_from_extracted(db, case_id, extracted)
 
-        db.table("capture_events").update({"status": "completed"}).eq("id", capture_event_id).execute()
+        db.table("capture_events").update({"status": "awaiting_review"}).eq("id", capture_event_id).execute()
         db.table("cases").update({"review_status": "needs_review"}).eq("id", case_id).execute()
 
         return {"status": "completed", "candidates_created": candidates_created}
