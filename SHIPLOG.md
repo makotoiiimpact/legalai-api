@@ -4,6 +4,31 @@ Running record of shipped work. Newest entries at top. One entry per meaningful 
 
 ---
 
+## 2026-04-23 — Surface Extraction Errors + Cap Polling
+
+**Commits:** 1 api (e00b1b3) + 1 ui (c804ba6 in legalai-ui)
+**Last pushed:** e00b1b3 on origin/main
+**Migration applied:** 20260423_002_case_review_status_error.sql on legalai-dev (cfiaxrvtafszmgraftbk). Prod (kapyskpusteokxuaquwo) deferred to prod promotion session per Rule 3.
+
+### Shipped
+- `case_review_status` enum gained 'error' value on dev. Verified: `processing, needs_review, in_review, confirmed, shell, error`.
+- `services/extraction.py::_mark_capture_error` now updates both `capture_events.status='error'` AND `cases.review_status='error'`. Signature gained `case_id`; all 3 call sites updated.
+- `routes/intake.py::get_extraction` state derivation: `processing → "extracting"`, `error → "error"`, otherwise `"complete"`. Frontend's existing `state === "error"` branch at processing/page.tsx:78 now fires.
+- legalai-ui processing page: `MAX_POLLS = 120` (≈108s at 900ms) + `isTimedOut` state + amber "taking longer than expected" banner. Covers the network-death / Railway-crash case where backend never updates.
+
+### Reverses prior design decision
+- 2026-04-21 entry said: "No 'error' value on case_review_status enum — errors surfaced via capture_events only." That decision left the UI polling forever on any Claude failure because `get_extraction` only reads `cases.review_status`, not `capture_events.status`. This ship adds the enum value and flows it through.
+
+### Not shipped (intentional)
+- Prod migration apply — needs Rule 3 review in the prod promotion session.
+- "Try again" button wiring — button exists at processing/page.tsx:142 but has no onClick yet (separate spec).
+
+### Verification
+- tsc clean, eslint clean, Python imports clean.
+- Manual smoke test per spec (kill Railway / break ANTHROPIC_API_KEY → confirm error banner instead of spinner) pending on a running dev deploy.
+
+---
+
 ## 2026-04-21 — Real Claude Extraction Pipeline
 
 **Commits:** 3 (extraction pipeline + charges parser + CHECK-value fix)
