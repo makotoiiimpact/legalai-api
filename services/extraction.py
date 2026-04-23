@@ -385,14 +385,27 @@ def _update_case_from_extracted(db: Client, case_id: str, extracted: dict):
         print(f"[run_extraction] cases update failed for {case_id}: {e}")
 
 
-def _mark_capture_error(db: Client, capture_event_id: str, msg: str):
+def _mark_capture_error(db: Client, case_id: str, capture_event_id: str, msg: str):
+    """Persist the failure on both the capture_event (processing_error + status)
+    AND the parent case (review_status='error'). Without the cases update the
+    UI polls /cases/{id}/extraction forever — that endpoint derives state
+    from cases.review_status, not capture_events.status.
+
+    Requires migration 20260423_002_case_review_status_error.sql to have
+    added 'error' to the case_review_status enum on the target project."""
     try:
         db.table("capture_events").update({
             "status": "error",
             "processing_error": msg[:500],
         }).eq("id", capture_event_id).execute()
     except Exception as e:
-        print(f"[run_extraction] failed to mark error on {capture_event_id}: {e}")
+        print(f"[run_extraction] failed to mark capture_event error on {capture_event_id}: {e}")
+    try:
+        db.table("cases").update({
+            "review_status": "error",
+        }).eq("id", case_id).execute()
+    except Exception as e:
+        print(f"[run_extraction] failed to mark case review_status=error on {case_id}: {e}")
 
 
 # ─── Orchestration entry point ───────────────────────────────────────────────
@@ -417,9 +430,10 @@ async def run_extraction(case_id: str, capture_event_id: str) -> dict | None:
     is why the two status fields use different vocabularies.
 
     On ExtractionError or unexpected error: capture_events.status → 'error'
-    with processing_error populated. cases.review_status is left alone (the
-    case-review enum may not have an 'error' value; the capture_event surfaces
-    the failure to the UI)."""
+    with processing_error populated, AND cases.review_status → 'error'. The
+    case-level flag is what GET /cases/{id}/extraction reads to return
+    state:"error" to the frontend. Requires migration 20260423_002 for the
+    enum value."""
     db = _get_dev_db()
 
     try:
@@ -440,7 +454,7 @@ async def run_extraction(case_id: str, capture_event_id: str) -> dict | None:
 
     storage_path = (cap_rows[0].get("source_metadata") or {}).get("storage_path")
     if not storage_path:
-        _mark_capture_error(db, capture_event_id, "No storage_path in source_metadata")
+        _mark_capture_error(db, case_id, capture_event_id, "No storage_path in source_metadata")
         return
 
     try:
@@ -464,8 +478,8 @@ async def run_extraction(case_id: str, capture_event_id: str) -> dict | None:
         return {"status": "completed", "candidates_created": candidates_created}
 
     except ExtractionError as e:
-        _mark_capture_error(db, capture_event_id, str(e))
+        _mark_capture_error(db, case_id, capture_event_id, str(e))
         return {"status": "error", "error": str(e), "candidates_created": 0}
     except Exception as e:
-        _mark_capture_error(db, capture_event_id, f"Unexpected: {type(e).__name__}: {e}")
+        _mark_capture_error(db, case_id, capture_event_id, f"Unexpected: {type(e).__name__}: {e}")
         return {"status": "error", "error": str(e), "candidates_created": 0}

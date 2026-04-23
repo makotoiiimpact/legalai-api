@@ -452,7 +452,12 @@ def get_extraction(case_id: str):
         cands = db.table("extraction_candidates").select("*").in_("capture_event_id", cap_ids).execute().data or []
 
     status = case_row.get("review_status") or "shell"
-    state = "extracting" if status == "processing" else "complete"
+    if status == "processing":
+        state = "extracting"
+    elif status == "error":
+        state = "error"
+    else:
+        state = "complete"
     entities = [build_entity_candidate(c) for c in _active(cands)]
     doc_meta = (doc_cap.get("source_metadata") if doc_cap else None) or {}
     return {

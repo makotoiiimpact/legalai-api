@@ -1,0 +1,23 @@
+-- 20260423_002_case_review_status_error.down.sql
+-- Postgres does not support removing a value from an enum type. The only
+-- reliable rollback is: rename old type, create new type without 'error',
+-- rewrite column default + existing rows, drop old type. Destructive and
+-- pointless for our case — 'error' is an additive value that idle rows
+-- never use until the error path runs.
+--
+-- If you truly need to undo this (e.g. an environment where the enum
+-- must match an older contract exactly), run the block below manually
+-- after confirming no rows currently hold review_status = 'error'.
+
+-- BEGIN;
+-- ALTER TYPE case_review_status RENAME TO case_review_status_old;
+-- CREATE TYPE case_review_status AS ENUM (
+--   'processing', 'needs_review', 'in_review', 'confirmed', 'shell'
+-- );
+-- ALTER TABLE cases
+--   ALTER COLUMN review_status DROP DEFAULT,
+--   ALTER COLUMN review_status TYPE case_review_status
+--     USING review_status::text::case_review_status,
+--   ALTER COLUMN review_status SET DEFAULT 'shell';
+-- DROP TYPE case_review_status_old;
+-- COMMIT;
