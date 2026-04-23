@@ -29,6 +29,12 @@ scripts/probe_output/options_people.json
 scripts/probe_output/options_positions.json
 scripts/probe_output/options_search.json
 
+# ----- Learning Lab run outputs (regenerable) -----
+# Model comparison reports + batch extraction results. Keep the folder
+# (.gitkeep) in git but ignore all generated artifacts inside it.
+scripts/output/*
+!scripts/output/.gitkeep
+
 # Python
 __pycache__/
 *.pyc
