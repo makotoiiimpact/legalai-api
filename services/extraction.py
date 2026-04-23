@@ -1,15 +1,15 @@
 """
 LegalAI — Tier 1 extraction pipeline
 =====================================
-Replaces the simulate_extraction() stub in routes/intake.py. Downloads a PDF
-from the case-documents bucket, extracts text with pdfplumber, sends it to
-Claude for structured entity extraction, matches extracted entities against
-existing judges/prosecutors/attorneys, then writes extraction_candidates rows
-and updates the cases row (legacy column mapping — see intake.py file header).
+Downloads a PDF from the case-documents bucket, extracts text with
+pdfplumber, sends it to Claude for structured entity extraction, matches
+extracted entities against existing judges/prosecutors/attorneys, then
+writes extraction_candidates rows and updates the cases row (legacy
+column mapping — see intake.py file header).
 
-Signature preserved at 2 args so routes/intake.py just renames the
-BackgroundTask call. storage_path is looked up internally from
-capture_events.source_metadata.storage_path.
+run_extraction takes 2 args (case_id, capture_event_id) to match the
+FastAPI BackgroundTask call site in routes/intake.py; storage_path is
+looked up internally from capture_events.source_metadata.storage_path.
 
 Per ADR-002 this is Tier 1 (AI-extracted, pending human review). OCR for
 scanned PDFs is a separate future pipeline — today we raise ExtractionError
@@ -397,7 +397,7 @@ def _mark_capture_error(db: Client, capture_event_id: str, msg: str):
 
 # ─── Orchestration entry point ───────────────────────────────────────────────
 
-async def run_extraction(case_id: str, capture_event_id: str):
+async def run_extraction(case_id: str, capture_event_id: str) -> dict | None:
     """Background task. 2-arg signature preserved so the call site in
     routes/intake.py only swaps the function name.
 
