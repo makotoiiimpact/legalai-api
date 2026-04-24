@@ -272,7 +272,15 @@ def _call_ollama(document_text: str, model_name: str, host: str) -> ModelResult:
         "prompt": prompt,
         "format": "json",  # Ollama's structured-output mode
         "stream": False,
-        "options": {"temperature": 0.0},
+        # Qwen 3.5 ships with thinking mode ON by default — produces a
+        # <think>...</think> monologue before the JSON, which blows latency
+        # and sometimes breaks structured output. Disable it globally; models
+        # that don't support the flag silently ignore it.
+        "think": False,
+        # Temperature 0.1 — deterministic enough for extraction (Claude
+        # ground-truth runs at ~0), non-zero to avoid pathological local
+        # minima on Ollama models like llama3.1:8b.
+        "options": {"temperature": 0.1},
     }
 
     start = time.perf_counter()
