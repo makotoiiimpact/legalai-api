@@ -292,9 +292,12 @@ def _call_ollama(document_text: str, model_name: str, host: str) -> ModelResult:
             result.error = f"HTTP {resp.status_code}"
             return result
         body = resp.json()
-        result.raw_response = body.get("response", "")
+        response_text = body.get("response", "")
+        # Belt-and-suspenders: some Ollama model adapters emit think tags even when think=false.
+        response_text = re.sub(r"<think>.*?</think>", "", response_text, flags=re.DOTALL)
+        result.raw_response = response_text
         result.token_count = body.get("eval_count")
-        result.parsed = parse_json_lenient(result.raw_response)
+        result.parsed = parse_json_lenient(response_text)
         if result.parsed is None:
             result.error = "unparseable JSON"
     except requests.ConnectionError as exc:
