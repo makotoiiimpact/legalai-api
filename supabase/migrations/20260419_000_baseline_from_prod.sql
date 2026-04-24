@@ -302,3 +302,13 @@ create or replace view public.confidence_by_check_type as
 -- ============================================================================
 -- End baseline UP migration.
 -- ============================================================================
+
+-- ───────────────────────────────────────────────────────
+-- 2026-04-23 PROD PROMOTION NOTE
+-- This file was NOT executed against prod kapyskpusteokxuaquwo.
+-- Per this file's own header and ADR-012, the migration was
+-- recorded in supabase_migrations.schema_migrations directly,
+-- AFTER migrations 2-8 were applied, so the tracking-row format
+-- could be matched to what Supabase actually writes.
+-- See session handoff for decision rationale.
+-- ───────────────────────────────────────────────────────

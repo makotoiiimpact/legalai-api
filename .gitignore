@@ -51,3 +51,6 @@ venv/
 # Editor
 .vscode/
 .idea/
+
+# Generated test fixtures (regenerable from scripts/create_test_*.py)
+/test_*.pdf

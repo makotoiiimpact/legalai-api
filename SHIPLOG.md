@@ -4,6 +4,24 @@ Running record of shipped work. Newest entries at top. One entry per meaningful 
 
 ---
 
+## 2026-04-23 — Phase 2 prod promotion — execution order inverted
+
+**Session type:** Prod DB migration planning decision. No code changes. Logged before migrations run so the rationale is locked before the risky work.
+
+**Target project:** `kapyskpusteokxuaquwo` (legalai prod). Dev (`cfiaxrvtafszmgraftbk`) untouched this session.
+
+### Decision: baseline tracking row inserted LAST, migrations 2-8 applied FIRST
+
+- **Original plan (Notion spec `34b3764230fa81a5a590e50b280e9886`):** apply `20260419_000_baseline_from_prod.sql` first as a no-op, then migrations 2-8.
+- **Actual plan:** apply migrations 2-8 via normal `apply_migration` first. Inspect the exact format Supabase writes into `schema_migrations`. Then insert the baseline row by hand, matching that observed format. No DDL from the baseline file ever runs against prod.
+- **Why the inversion:** the baseline file's own header says "DO NOT apply to prod" and directs us to record it via the migration history table directly (ADR-012 compliance). Running it — even guarded — is a belt-and-suspenders violation of the no-ad-hoc-DDL rule. Inverting the order also lets us observe the tracking-row shape Supabase writes before we have to forge one.
+- **Risk accepted:** if any migration in 2-8 referenced an object the baseline claims to create, it could fail before the baseline row exists. Mitigation: the baseline mirrors objects already on prod (6 legacy tables + 4 extensions); everything in 2-8 is net-new. Net-new should not depend on baseline's tracking presence.
+- **Rollback trigger:** if any migration in 2-8 fails citing a missing baseline object, STOP. Do not mid-sequence retrofit the baseline row. Report and re-plan.
+- **Approved by:** Makoto, 2026-04-23 session.
+- **Notion update pending:** Makoto to mirror this decision onto the Notion prod promotion spec child block/comment.
+
+---
+
 ## 2026-04-23 — Learning Lab Session 1 — Extraction model comparison infrastructure
 
 **Commits:** `d3d1000`, `ea013cd`, `a3381e4`, `00c6bb8` on `legalai-api` `main` (all pushed to origin).
