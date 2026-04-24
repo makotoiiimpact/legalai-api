@@ -4,6 +4,60 @@ Running record of shipped work. Newest entries at top. One entry per meaningful 
 
 ---
 
+## 2026-04-24 — Phase 4: Demo entities seeded on prod
+
+**Status:** Complete. Verified cross-session.
+
+**Project:** kapyskpusteokxuaquwo (LegalAI prod)
+**Driver:** seed_prod_demo_entities.py (--execute, single run)
+**Commit:** 554b937
+
+**Rows written (10 total):**
+- courts: Clark County District Court
+  (20fc97a1-fce1-45bb-8f10-f915699149fd)
+- agencies: Clark County DA
+  (df850b26-1771-4907-947e-b0b79b089f41)
+- judges: Gall (Dept 9), Bluth (Dept 6), Krall (Dept 4)
+- prosecutors: Chen, Rodriguez, Schwartz, Walsh (DDAs,
+  first_name=NULL)
+- attorneys: Garrett T. Ogata (NV bar 7469, is_firm_member=true)
+- audit_log: ae64d961-c4b3-43c9-85f3-2fd6d540e1ba
+
+**Key decisions:**
+1. **Judge roster revised from original spec.** Spec listed
+   Kephart/Jones/Wiese in Depts XIV/IX/XXVI. Verified via Clark
+   County elections page (March 2026 roster): those pairings were
+   inaccurate. Replaced with Gall/Bluth/Krall in Depts 9/6/4,
+   verified current.
+
+2. **Prosecutor first names stripped.** Original spec listed
+   only last names; first-draft script fabricated first names
+   (Sarah/Michael/Jessica/David). Stripped to last-name-only,
+   first_name=NULL, title="Deputy District Attorney" carries the
+   role.
+
+3. **Dedicated prod seed script, not forked dev seeder.** Dev
+   seeder explicitly refuses non-dev URLs; rather than relax that
+   guard, wrote scripts/seed_prod_demo_entities.py with four
+   guardrail layers (prod-only env var names, project ref
+   allowlist, JWT role + ref claim assertions, default dry-run).
+
+4. **All 10 rows carry external_ids.source='legalai_demo_seed'**
+   for future cleanup discovery.
+
+**Verified via cross-session SELECTs (Q1-Q6):**
+- Row counts: 1/1/3/4/1 ✓
+- FK linkage: judges→court, prosecutors→agency all resolved ✓
+- NULL semantics: prosecutor.first_name IS NULL ✓
+- Ogata field values: bar_number, bar_state, is_firm_member ✓
+- audit_log persistence with correct metadata ✓
+- Provenance marker on 10/10 rows ✓
+
+**Next:** Phase 5 (Railway + Vercel env var cutover, manual),
+then Phase 6 (E2E test through legalai.iiimpact.ai).
+
+---
+
 ## 2026-04-23 — Phase 2 prod promotion — execution order inverted
 
 **Session type:** Prod DB migration planning decision. No code changes. Logged before migrations run so the rationale is locked before the risky work.
