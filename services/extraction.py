@@ -255,14 +255,14 @@ def match_entity_against_existing(
     }
 
 
-# ─── Supabase client (dev) ────────────────────────────────────────────────────
+# ─── Supabase client ──────────────────────────────────────────────────────────
 
 def _get_dev_db() -> Client:
-    url = os.environ.get("SUPABASE_DEV_URL")
-    key = os.environ.get("SUPABASE_DEV_SERVICE_KEY")
+    url = os.environ.get("SUPABASE_URL")
+    key = os.environ.get("SUPABASE_SERVICE_KEY")
     if not url or not key:
         raise RuntimeError(
-            "Missing SUPABASE_DEV_URL / SUPABASE_DEV_SERVICE_KEY — see .env.example"
+            "Missing SUPABASE_URL / SUPABASE_SERVICE_KEY — see .env.example"
         )
     return create_client(url, key)
 

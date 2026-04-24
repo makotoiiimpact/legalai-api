@@ -4,7 +4,8 @@ LegalAI v2 — Firm Case Intake API
 New HTTP surface for the UX Design v1 frontend (legalai-ui).
 Mounted at /api/v2 in main.py. Old routes at root are untouched.
 
-All routes hit legalai-dev (cfiaxrvtafszmgraftbk) via SUPABASE_DEV_URL.
+All routes hit whatever Supabase project SUPABASE_URL points at
+(prod on Railway, dev locally).
 Responses use camelCase to match the TypeScript interfaces in
 legalai-ui/lib/types.ts.
 
@@ -56,14 +57,14 @@ router = APIRouter()
 # ─── Dev Supabase client ──────────────────────────────────────────────────────
 
 def get_dev_db():
-    """Client for legalai-dev (cfiaxrvtafszmgraftbk). Separate from the
-    prod get_db() used by old routes in main.py."""
+    """Supabase client for the v2 intake routes. Reads SUPABASE_URL /
+    SUPABASE_SERVICE_KEY — same vars as main.py's get_db()."""
     from supabase import create_client
-    url = os.environ.get("SUPABASE_DEV_URL")
-    key = os.environ.get("SUPABASE_DEV_SERVICE_KEY")
+    url = os.environ.get("SUPABASE_URL")
+    key = os.environ.get("SUPABASE_SERVICE_KEY")
     if not url or not key:
         raise RuntimeError(
-            "Missing SUPABASE_DEV_URL or SUPABASE_DEV_SERVICE_KEY in environment. "
+            "Missing SUPABASE_URL or SUPABASE_SERVICE_KEY in environment. "
             "See legalai-api/.env.example for the template."
         )
     return create_client(url, key)

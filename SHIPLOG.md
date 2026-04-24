@@ -56,6 +56,10 @@ Running record of shipped work. Newest entries at top. One entry per meaningful 
 **Next:** Phase 5 (Railway + Vercel env var cutover, manual),
 then Phase 6 (E2E test through legalai.iiimpact.ai).
 
+**Followups:**
+- Rename `get_dev_db` / `_get_dev_db` functions to drop misleading
+  "dev" suffix. Deferred from Phase 5 cutover for scope discipline.
+
 ---
 
 ## 2026-04-23 — Phase 2 prod promotion — execution order inverted
