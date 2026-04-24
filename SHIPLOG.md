@@ -4,6 +4,78 @@ Running record of shipped work. Newest entries at top. One entry per meaningful 
 
 ---
 
+## 2026-04-23 — Learning Lab Session 1 — Extraction model comparison infrastructure
+
+**Commits:** `d3d1000`, `ea013cd`, `a3381e4`, `00c6bb8` on `legalai-api` `main` (all pushed to origin).
+
+> R&D session. No changes to production schema, services, or client-facing routes. All work lives under `scripts/` in the `legalai-api` repo.
+
+### What shipped
+
+**`d3d1000`** — `feat(scripts): add model comparison harness for extraction R&D`
+- File: `scripts/compare_extraction_models.py` (552 lines)
+- Purpose: Single-document comparison across Claude (ground truth) + 4 Ollama models
+- Architecture: provider abstraction via `_call_claude()` / `_call_ollama()`; lenient JSON parser that tolerates markdown-fenced responses; per-field + overall agreement scoring; markdown report output at `scripts/output/model_comparison_results.md`
+- Config: `.gitignore` rule added for `scripts/output/*` (retains `.gitkeep`) so run outputs don't pollute `git status`
+- Verification: `--help` renders; `--claude-only` smoke on `test_complaint.pdf` returned valid 8-field JSON in **2.21s**
+
+**`ea013cd`** — `fix(scripts): disable Qwen thinking mode and lower temperature for deterministic extraction`
+- +9 / −1 lines on `scripts/compare_extraction_models.py`
+- Ollama payload now sets `"think": false` at top level and `"options": {"temperature": 0.1}`
+- Trigger: pod testing showed Qwen 3.5:9b emits `<think>…</think>` monologue by default, blowing latency ~30× and corrupting `format: "json"` mode
+- Safety: non-thinking models silently ignore the `think` flag — safe cross-family default
+
+**`a3381e4`** — `fix(scripts): strip leaked think tags defensively in Ollama response parsing`
+- +5 / −2 lines on `scripts/compare_extraction_models.py`
+- Post-response `re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL)` applied before the lenient parser, and reflected into `raw_response` so the report's raw-response section matches what got parsed
+- Belt-and-suspenders: some Ollama adapters emit think tags even when `think=false`
+- **This is the "pending defensive fix" referenced in the Session 1 Handoff — it shipped in Session 1, not deferred.**
+
+**`00c6bb8`** — `feat(scripts): add batch extraction with resume, warmup, per-doc output`
+- File: `scripts/batch_extract.py` (576 lines)
+- Purpose: Batch extraction over a directory using a single chosen model
+- Architecture: `asyncio.Semaphore(concurrency)` for bounded parallelism; warmup ping preloads weights before the batch loop; per-doc JSON output `{document, model, timestamp, latency_seconds, extraction, errors}`; `_summary.csv` at batch end; tqdm progress with `[N/total]` fallback; resume-by-default via skip-if-output-exists
+- Import strategy: imports `EXTRACTION_PROMPT`, `EXTRACTION_FIELDS`, `load_document_text`, `parse_json_lenient` from `compare_extraction_models` via `sys.path` insert — deliberate; consolidation is Script 5's job (the `services/extraction.py` refactor)
+- Verification: 5 docs × 4 models = **20/20 succeeded** on pod test, zero failures, all 8 fields populated
+
+### Pod infrastructure
+
+- Ollama **0.21.1** on RunPod RTX 4090 (24 GB VRAM)
+- **4 model tags** pulled onto `/workspace` persistent volume (~39 GB total): `qwen3.5:9b`, `llama3.1:8b`, `mistral-nemo:12b`, `qwen3:14b`
+- Recovery script at `/workspace/reinstall_ollama.sh` for container resets (pod container is ephemeral; models are not)
+- Separate R&D Anthropic API key **`legalai-rnd-pod`** with monthly spend cap — see [Product Build Discipline Rule 11](https://www.notion.so/3473764230fa8171b95ef5cac71717c0)
+
+### ADRs referenced
+
+- [ADR-023 — LegalAI R&D model fleet selection (2026-04-23)](https://www.notion.so/34c3764230fa819eb5d6fb3b0ca309af) — fleet choice, `qwen3:32b` rejection rationale (4.3 tok/s, VRAM-bound), mandatory Ollama payload defaults
+
+### Applied to
+
+- `legalai-api` `main` ✅ 4 commits pushed to origin (`d3d1000 → ea013cd → a3381e4 → 00c6bb8`)
+- Local Mac smoke testing ✅ Script 1 `--claude-only` + Script 2 2-doc Claude batch + resume re-run
+- RunPod RTX 4090 (R&D pod) ✅ Script 2 full-fleet run — 20/20 docs succeeded
+- `legalai-dev` (cfiaxrvtafszmgraftbk) — untouched
+- `legalai` prod (kapyskpusteokxuaquwo) — untouched
+- AI GC (wlksqdorclrxjbulvvik) — untouched
+
+### Pending → resolved
+
+- **Script 1 defensive `<think>` tag strip** flagged as "pending" in the Session 1 Handoff. **Confirmed: shipped as `a3381e4` on origin/main before session close.** Not a Session 2 blocker.
+
+### Next
+
+- Session 2 opening-move decision: quality-score first (Path A, recommended) vs Script 3 first (Path B) — see [Learning Lab Session 1 Handoff](https://www.notion.so/34c3764230fa8192ad55ce91930819b8)
+- Script 3 / Script 4 / Script 5 remaining in the 5-commit sequence. Script 5 (`services/extraction.py` model-agnostic refactor) carries mandatory tests per `legalai-api/CLAUDE.md` test policy
+
+### Cross-links
+
+- [Learning Lab — Session 1 Handoff](https://www.notion.so/34c3764230fa8192ad55ce91930819b8)
+- [ADR-023 — LegalAI R&D model fleet selection](https://www.notion.so/34c3764230fa819eb5d6fb3b0ca309af)
+- [Product Build Discipline Rule 11 — R&D API key isolation](https://www.notion.so/3473764230fa8171b95ef5cac71717c0) *(new this session)*
+- Repo: `scripts/compare_extraction_models.py`, `scripts/batch_extract.py`, `scripts/output/`
+
+---
+
 ## 2026-04-23 — Surface Extraction Errors + Cap Polling
 
 **Commits:** 1 api (e00b1b3) + 1 ui (c804ba6 in legalai-ui)
