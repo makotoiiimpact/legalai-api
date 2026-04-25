@@ -4,6 +4,85 @@ Running record of shipped work. Newest entries at top. One entry per meaningful 
 
 ---
 
+## 2026-04-24 — Phase 6: E2E test on prod (verified)
+
+**Status:** Complete. 10 of 11 acceptance criteria met; 1 intentionally skipped (see below). Verified end-to-end against `legalai.iiimpact.ai`.
+
+**Project:** kapyskpusteokxuaquwo (LegalAI prod)
+**Commits touched this phase:** none. Verification phase against Phase 5's env-var cutover (`9b9752e`).
+**Test artifact:** `TEST_CASE_ID = 925f1764-c526-4f26-a742-b89a8cc292cc` (cleaned up post-test)
+
+**What was tested:**
+- Upload of `test_complaint.pdf` (2,162 bytes, sha256 `ebd3fd8096624643f81685a4f711c0dfde42f1ff54f5170d13cb8576e31e7f39`)
+- Extraction via Claude Sonnet, BackgroundTask in-process
+- Entity matcher against Phase 4 seeds (judges, prosecutors, attorneys, courts, agencies)
+- Auto-confirm firm-member branch (Ogata)
+- Manual-add free-text path (Jane Doe, `co_counsel`)
+- Confirm-all bulk action with 0.8 threshold
+- `_maybe_finalize_case` cascade
+- Matchup screen render
+
+**Acceptance: 10 of 11 criteria met.**
+1. Upload returned 200 with valid case id ✅
+2. Extraction reached terminal (`awaiting_review`, no error) ✅
+3. Review screen rendered, PDF rendered, 4 candidates listed ✅
+4. Reject correction exercised ⚠️ **Intentionally skipped** — all 4 extracted candidates (Kephart, Chen, Ogata, Martinez) were legitimate high-confidence entities. Forcing a rejection on a good candidate would have polluted demo-prep state and told a worse product story. The `not_entity` correction code path was validated in write-surface recon (`routes/intake.py:811`) — read-form, not execution-form coverage. Followup: exercise in Phase 7 or whenever a test PDF produces a genuinely-garbage extraction candidate.
+5. Manual-add "Jane Doe" landed with `matched_entity_id NULL` ✅
+6. Confirm-all flipped all 3 remaining pending rows ✅
+7. Case finalized to `review_status='confirmed'` via `_maybe_finalize_case` cascade ✅
+8. Matchup screen rendered with non-error counts ✅
+9. Cleanup Pass 2 succeeded (5 candidates + 1 capture + 1 blob + 1 case all deleted) ✅
+10. Seed md5 fingerprint identical to Step 1 baseline (all 7 hashes) ✅
+11. `cases` table row count = 0 post-cleanup ✅
+
+**Cleanup verification:**
+- FK-safe deletion order applied
+- Storage blob deleted from `case-documents/garrett/{case_id}/`
+- Seed md5 fingerprint identical pre/post across `agencies`, `attorneys`, `audit_log`, `courts`, `judges`, `motion_types`, `prosecutors`
+
+**Notable findings (non-blocking):**
+1. **Manual-add path doesn't run entity matcher** (by current design). `POST /api/v2/cases/{id}/entities` (`routes/intake.py:862-894`) inserts free-text candidates with `matched_entity_id=NULL` regardless of whether the name matches a seeded entity. The Claude extraction path calls `match_entity_against_existing` (`services/extraction.py:185-255`); the manual-add path does not. UI labels manual adds the same as extracted-but-unmatched candidates ("New: not yet in your system"). Captured as Backlog ticket — see [Manual-add label ticket](https://www.notion.so/34c3764230fa81b9aa90db55c69c94a1).
+2. **Sarah Chen prosecutor match is fragile.** Seed row stores `first_name=NULL`. Full-name `ilike` match misses (`extraction.py:212`); last-name fallback catches (`extraction.py:222-235`). Works today because there is exactly one prosecutor named Chen in seeds. Would fail silently if a second Chen is ever seeded (wrong match vs. ambiguous-match state). Data-quality finding, not a bug.
+3. **Test PDF is 2.1 KB / ~1 page.** Produces 4 extraction candidates, all at confidence 1.0. Adequate for Phase 6 verification. Should be upgraded to a 10–50 page realistic complaint for Saturday's demo to exercise more of the extraction pipeline.
+
+**Demo surface observations:**
+The review screen rendered three distinct visual states in one frame — auto-confirmed (Ogata, firm member, green-bordered card), matched-in-system (Chen), and new (Kephart, Martinez). Three states = three product stories. This is the screen to lead with in Saturday's demo if the flow is upload → review.
+
+**Next:** Saturday 2026-04-26 demo with Garrett Ogata (~24 hours from this entry). Open decisions before then: test PDF strategy (keep synthetic vs. upgrade), demo-or-skip manual-add narrative.
+
+**Cross-links:**
+- [Notion handoff — Phase 6 Complete, Demo Prep (2026-04-25)](https://www.notion.so/34c3764230fa814e96baf42e38d714d2)
+- [Intake Pipeline canonical reference](https://www.notion.so/34c3764230fa81b6a30cdbfa18a53ba4)
+- [Backlog & Post-Demo Followups](https://www.notion.so/34c3764230fa81ee8d0fdb6e050d6ad5)
+- [Manual-add label ticket (first followup)](https://www.notion.so/34c3764230fa81b9aa90db55c69c94a1)
+
+---
+
+## 2026-04-24 — Phase 5: Prod Supabase cutover (env vars + v2 route bug fix)
+
+**Status:** Complete. Cutover that made Phase 6 possible. Verified by Phase 6 E2E run later same day.
+
+**Project:** kapyskpusteokxuaquwo (LegalAI prod, us-west-2)
+**Commit:** `9b9752e` on `main`
+
+**What shipped:**
+- Railway `legalai-api` env vars flipped to prod Supabase (`kapyskpusteokxuaquwo`)
+- Vercel `legalai-ui` env vars flipped to prod Supabase (both auth and direct-call)
+- Supabase auth URLs configured for `legalai.iiimpact.ai`
+- **Bug fix (the actual code change in `9b9752e`):** `routes/intake.py` and `services/extraction.py` were reading `SUPABASE_DEV_URL` / `SUPABASE_DEV_SERVICE_KEY` literally — meaning the v2 routes and the extraction service were immune to the env-var cutover at the platform level. Unified onto `SUPABASE_URL` / `SUPABASE_SERVICE_KEY` so the cutover actually took effect.
+
+**Verification:**
+- Prod `cases` table empty (clean slate for demo prep)
+- Entity dropdowns populated with prod seeds: judges (Gall/Bluth/Krall), prosecutors (Chen/Rodriguez/Walsh/Schwartz), attorneys (Ogata), courts (Clark County District), agencies (Clark County DA)
+- `legalai.iiimpact.ai` responsive, Google OAuth working for `@iiimpact.io`
+
+**Significance:** Phase 4 seeded the data; Phase 5 made the running app actually read it. Phase 6 is the verification that the full cutover worked end-to-end against real upload → extraction → review → finalize → cleanup.
+
+**Followups:**
+- Rename `get_dev_db` / `_get_dev_db` function names (still carrying misleading "dev" suffix despite now reading `SUPABASE_URL`). Deferred from this phase for scope discipline; same followup carried in Phase 4 entry.
+
+---
+
 ## 2026-04-24 — Phase 4: Demo entities seeded on prod
 
 **Status:** Complete. Verified cross-session.
