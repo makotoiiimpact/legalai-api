@@ -12,6 +12,29 @@ LegalAI is a behavioral intelligence platform for legal practice. Customer zero:
 - **GitHub:** makotoiiimpact/legalai-api and makotoiiimpact/legalai-ui
 - **Demo passcode:** ogata2024
 
+## Learnings Protocol (Hard Rule)
+
+**At session start:** Read `LEARNINGS.md` before responding to the first task. Treat its rules as binding.
+
+**Append a new entry to `LEARNINGS.md` when:**
+- The user corrects an implementation choice ("no, do it this way")
+- The user repeats an instruction you should have followed the first time
+- An assumption I made turned out wrong and caused rework
+- A choice I made caused a bug, deploy failure, or schema issue
+
+**Do NOT append for:**
+- User scope or feature changes (that's iteration, not a mistake)
+- Style preferences (those belong in `CLAUDE.md` proper)
+- One-off context that won't generalize
+
+**Entry format:**
+## YYYY-MM-DD — [area]
+**Mistake:** [what I did]
+**Correction:** [what should have happened]
+**Rule:** [generalized rule going forward]
+
+Append before the session ends — never wait to be asked. At nightly handoff, list new entries captured this session.
+
 ## ⚠️ Supabase Project Discipline
 Makoto operates multiple Supabase projects. Do NOT inherit a project ID from another repo's CLAUDE.md or from memory of another session.
 
